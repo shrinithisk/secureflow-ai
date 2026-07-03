@@ -1,0 +1,27 @@
+# Node.js
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+
+# Python cache & virtualenvs
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# SecureFlow AI Scanner temp folders & SQLite DB
+backend/.env
+backend/secureflow.db
+backend/temp_clones/
+backend/temp_uploads/
+*.db
+*.log
+
+# Operating System files
+.DS_Store
+Thumbs.db

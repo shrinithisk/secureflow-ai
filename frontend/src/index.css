@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  background-color: #0b0f19;
+  color: #f8fafc;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+@media print {
+  body {
+    background: white !important;
+    background-color: white !important;
+    color: #0f172a !important;
+  }
+  
+  /* Hide interactive, navigation, and sidebar controls */
+  header, nav, button, form, .no-print, [title="Delete log entry"], .no-print-btn {
+    display: none !important;
+  }
+  
+  /* Reset layout constraints for printing */
+  .grid {
+    display: block !important;
+  }
+  
+  .xl\:col-span-3, .xl\:col-span-1, .flex-1 {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    display: block !important;
+  }
+  
+  /* Format card backgrounds to light and printer-friendly */
+  .bg-slate-900\/60, 
+  .bg-slate-900\/40, 
+  .bg-slate-950\/40, 
+  .bg-slate-950\/60, 
+  .bg-\[\#0f172a\], 
+  .bg-slate-900,
+  .bg-slate-950 {
+    background: #f8fafc !important;
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+    margin-bottom: 1.5rem !important;
+    page-break-inside: avoid !important;
+  }
+
+  .text-slate-300, .text-slate-400, .text-slate-200, p, h3, h4, span {
+    color: #1e293b !important;
+  }
+  
+  .text-indigo-400, .text-indigo-200 {
+    color: #4f46e5 !important;
+  }
+  
+  .text-red-400 {
+    color: #dc2626 !important;
+  }
+
+  /* Expand all collapsed text panels */
+  .max-h-24 {
+    max-h: none !important;
+    overflow: visible !important;
+    padding-bottom: 0 !important;
+  }
+  
+  .absolute.bottom-0 {
+    display: none !important;
+  }
+
+  /* Prevent page-breaks in the middle of vulnerability finding cards */
+  .space-y-4 > div {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    border: 1px solid #e2e8f0 !important;
+    background: #f8fafc !important;
+    margin-bottom: 1rem !important;
+  }
+}
