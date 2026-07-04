@@ -11,6 +11,8 @@ Agentic AI DevSecOps Security Engineer & CI/CD Optimizer.
    ```bash
    cd backend
    pip install -r requirements.txt
+   # Copy backend/.env.example to backend/.env and add your Gemini API Key:
+   # GEMINI_API_KEY=your_key_here
    python -m app.main
    ```
 2. **Frontend**:
