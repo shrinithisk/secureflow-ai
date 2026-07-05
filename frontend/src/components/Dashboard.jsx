@@ -227,8 +227,7 @@ export default function Dashboard({ username, onLogout }) {
 
       {/* Main Content Area */}
       <div className="flex-1 max-w-[1600px] w-full mx-auto p-6">
-        {(activeTab === 'dashboard' || activeTab === 'audit') ? (
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
         
         {/* Left Column: Repository Submission & Scanner Configs */}
         <div className="space-y-6 xl:col-span-1 no-print">
@@ -545,6 +544,35 @@ export default function Dashboard({ username, onLogout }) {
                   )}
                 </div>
               )}
+
+              {activeTab === 'workflows' && (
+                <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl min-h-[500px]">
+                  <h2 className="text-base font-bold text-slate-100 mb-6 flex items-center gap-2 border-b border-slate-800 pb-3">
+                    <GitBranch className="w-5 h-5 text-indigo-400" />
+                    AI GitHub Actions Workflow Optimizer
+                  </h2>
+                  {activeScan?.optimized_workflows && activeScan.optimized_workflows.length > 0 ? (
+                    <YAMLDiff workflowData={activeScan.optimized_workflows[0]} />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-center py-16">
+                      <div className="w-14 h-14 bg-slate-900 rounded-full flex items-center justify-center mb-4 border border-slate-800">
+                        <GitBranch className="w-6 h-6 text-indigo-400" />
+                      </div>
+                      <h3 className="font-bold text-sm text-slate-200">No Optimized Workflows Available</h3>
+                      <p className="text-xs text-slate-500 max-w-sm mt-1 leading-relaxed">
+                        Please select or run a repository scan first to view and generate secure CI/CD YAML configurations.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'ai-assistant' && (
+                <AIAssistantTab 
+                  findingsContext={activeScan?.findings || []} 
+                  repoName={activeScan?.repo_name}
+                />
+              )}
             </div>
           )}
 
@@ -562,33 +590,7 @@ export default function Dashboard({ username, onLogout }) {
           )}
         </div>
       </div>
-      ) : activeTab === 'workflows' ? (
-        <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl min-h-[500px]">
-          <h2 className="text-base font-bold text-slate-100 mb-6 flex items-center gap-2 border-b border-slate-800 pb-3">
-            <GitBranch className="w-5 h-5 text-indigo-400" />
-            AI GitHub Actions Workflow Optimizer
-          </h2>
-          {activeScan?.optimized_workflows && activeScan.optimized_workflows.length > 0 ? (
-            <YAMLDiff workflowData={activeScan.optimized_workflows[0]} />
-          ) : (
-            <div className="flex flex-col items-center justify-center text-center py-16">
-              <div className="w-14 h-14 bg-slate-900 rounded-full flex items-center justify-center mb-4 border border-slate-800">
-                <GitBranch className="w-6 h-6 text-indigo-400" />
-              </div>
-              <h3 className="font-bold text-sm text-slate-200">No Optimized Workflows Available</h3>
-              <p className="text-xs text-slate-500 max-w-sm mt-1 leading-relaxed">
-                Please select or run a repository scan first to view and generate secure CI/CD YAML configurations.
-              </p>
-            </div>
-          )}
-        </div>
-      ) : (
-        <AIAssistantTab 
-          findingsContext={activeScan?.findings || []} 
-          repoName={activeScan?.repo_name}
-        />
-      )}
-      </div>
+    </div>
     </div>
   );
 }
