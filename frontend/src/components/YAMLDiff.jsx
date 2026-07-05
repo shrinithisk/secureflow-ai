@@ -80,32 +80,17 @@ export default function YAMLDiff({ workflowData }) {
       </div>
 
       {/* Code Editor Panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left column: Issues Summary */}
-        <div className="flex flex-col">
-          <div className="bg-slate-900/50 border border-slate-850 rounded-t-xl px-4 py-2 text-xs font-semibold text-slate-400 uppercase">
-            Original Pipeline Context ({original_filename})
-          </div>
-          <div className="flex-1 bg-slate-950 p-4 rounded-b-xl border-x border-b border-slate-850 font-mono text-xs text-slate-400 min-h-[300px] overflow-auto select-none flex items-center justify-center flex-col gap-2">
-            <AlertTriangle className="w-8 h-8 text-yellow-500/80" />
-            <p className="text-slate-400 text-center max-w-xs">
-              Reviewing floating branches, wildcard permissions, and third-party action configurations.
-            </p>
-          </div>
+      <div className="flex flex-col">
+        {/* Generated secure YAML */}
+        <div className="bg-green-950/20 border border-green-900/40 rounded-t-xl px-4 py-2 text-xs font-semibold text-green-400 uppercase flex justify-between items-center">
+          <span>Secure Workflow ({new_filename})</span>
+          <span className="px-2 py-0.5 bg-green-500/20 text-[10px] text-green-300 rounded-full font-sans uppercase">
+            Secure
+          </span>
         </div>
-
-        {/* Right column: Generated secure YAML */}
-        <div className="flex flex-col">
-          <div className="bg-green-950/20 border border-green-900/40 rounded-t-xl px-4 py-2 text-xs font-semibold text-green-400 uppercase flex justify-between items-center">
-            <span>Secure Workflow ({new_filename})</span>
-            <span className="px-2 py-0.5 bg-green-500/20 text-[10px] text-green-300 rounded-full font-sans uppercase">
-              Secure
-            </span>
-          </div>
-          <pre className="flex-1 bg-slate-950 p-4 rounded-b-xl border-x border-b border-green-900/20 font-mono text-xs text-slate-200 overflow-auto min-h-[300px] max-h-[450px]">
-            <code>{content || "# Scaffoldingsecure YAML workflow..."}</code>
-          </pre>
-        </div>
+        <pre className="flex-1 bg-slate-950 p-4 rounded-b-xl border-x border-b border-green-900/20 font-mono text-xs text-slate-200 overflow-auto min-h-[300px] max-h-[550px]">
+          <code>{content || "# Scaffolding secure YAML workflow..."}</code>
+        </pre>
       </div>
     </div>
   );
