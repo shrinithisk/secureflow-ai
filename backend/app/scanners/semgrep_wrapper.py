@@ -46,11 +46,16 @@ def run_semgrep(repo_path):
             }
             severity = severity_map.get(semgrep_severity, "Medium")
             
+            check_id = issue.get("check_id", "semgrep-rule")
+            parts = check_id.split(".")
+            title_suffix = parts[-1].replace("-", " ").replace("_", " ").title()
+            finding_type = f"SAST: {title_suffix}"
+
             findings.append({
-                "id": issue.get("check_id", "semgrep-rule"),
+                "id": check_id,
                 "cve": cve,
                 "tool": "semgrep",
-                "type": "Code Quality / Security Issue",
+                "type": finding_type,
                 "severity": severity,
                 "file": issue.get("path", ""),
                 "line": issue.get("start", {}).get("line", 1),

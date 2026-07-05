@@ -48,7 +48,7 @@ def run_actionlint(repo_path):
                     "id": rule,
                     "cve": "N/A",
                     "tool": "actionlint",
-                    "type": "CI/CD Pipeline Security Issue",
+                    "type": f"Workflow Lint: {rule}",
                     "severity": severity,
                     "file": file_path,
                     "line": int(line_num),

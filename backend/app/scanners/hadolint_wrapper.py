@@ -52,7 +52,7 @@ def run_hadolint(repo_path):
                     "id": issue.get("code", "DL0000"),
                     "cve": "N/A",
                     "tool": "hadolint",
-                    "type": "Dockerfile Issue",
+                    "type": f"Dockerfile Lint: {issue.get('code', 'DL0000')}",
                     "severity": severity,
                     "file": relative_path,
                     "line": issue.get("line", 1),

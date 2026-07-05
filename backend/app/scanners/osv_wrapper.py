@@ -102,7 +102,7 @@ async def scan_dependencies(repo_path):
                     "id": vuln.get("id"),
                     "cve": cve,
                     "tool": "osv",
-                    "type": "Dependency Vulnerability",
+                    "type": f"CVE Vulnerability: {dep['name']}",
                     "severity": "High",  # OSV API doesn't always contain a simple severity string, so we default to High
                     "package": dep["name"],
                     "current_version": dep["version"],
