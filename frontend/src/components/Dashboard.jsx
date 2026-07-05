@@ -510,6 +510,13 @@ export default function Dashboard({ username, onLogout }) {
                               {finding.type} {finding.cve !== "N/A" && `(${finding.cve})`}
                             </h4>
                             
+                            {finding.code_snippet && (
+                              <div className="mt-2 bg-slate-950 p-2.5 rounded-lg border border-slate-900 font-mono text-[10px] text-slate-300 break-all leading-normal no-print">
+                                <span className="text-slate-500 font-sans font-bold block mb-1 uppercase tracking-wider text-[9px]">Affected Code Line:</span>
+                                <code>{finding.code_snippet}</code>
+                              </div>
+                            )}
+                            
                             <div className="relative text-sm text-slate-400 leading-relaxed">
                               <div className={`transition-all duration-300 overflow-hidden relative ${
                                 expandedFindings[idx] ? 'max-h-none' : 'max-h-24 pb-6'

@@ -14,6 +14,22 @@ def get_scanners_status():
         "osv": True # Always active (uses python parsing + free API)
     }
 
+def extract_line_content(repo_path, relative_file_path, line_number):
+    import os
+    try:
+        # Resolve absolute path safely and check bounds
+        abs_path = os.path.abspath(os.path.join(repo_path, relative_file_path))
+        if not abs_path.startswith(os.path.abspath(repo_path)):
+            return None
+        if os.path.exists(abs_path) and os.path.isfile(abs_path):
+            with open(abs_path, "r", encoding="utf-8", errors="ignore") as f:
+                lines = f.readlines()
+                if 0 < line_number <= len(lines):
+                    return lines[line_number - 1].strip()
+    except Exception as e:
+        print(f"Error extracting line snippet: {e}")
+    return None
+
 async def run_all_scans(repo_path):
     print(f"Starting aggregate scan on: {repo_path}")
     
@@ -49,6 +65,15 @@ async def run_all_scans(repo_path):
         sig = (f.get("tool"), f.get("file"), f.get("line"), f.get("description", "")[:50])
         if sig not in seen:
             seen.add(sig)
+            
+            # Extract actual code snippet line
+            file_path = f.get("file", "")
+            line_num = f.get("line")
+            if file_path and line_num is not None:
+                snippet = extract_line_content(repo_path, file_path, int(line_num))
+                if snippet:
+                    f["code_snippet"] = snippet
+                    
             deduped_findings.append(f)
             
     print(f"Aggregation complete. Found {len(deduped_findings)} unique vulnerabilities.")
