@@ -352,7 +352,7 @@ export default function Dashboard({ username, onLogout }) {
           </div>
         </div>
 
-        {/* Right Columns: Active Presentation Dashboard */}
+        {/* Right Column: Active Presentation Dashboard */}
         <div className="xl:col-span-3 space-y-6">
           
           {/* Scan Loader State */}
@@ -365,7 +365,7 @@ export default function Dashboard({ username, onLogout }) {
           )}
 
           {error && (
-            <div className="bg-red-950/40 border border-red-800 text-red-300 text-sm rounded-2xl p-4">
+            <div className="bg-red-950/40 border border-red-800 text-red-300 text-xs rounded-2xl p-4">
               {error}
             </div>
           )}
@@ -373,6 +373,7 @@ export default function Dashboard({ username, onLogout }) {
           {/* Active Scan Detail Display */}
           {!loading && activeScan && (
             <div className="space-y-6">
+              
               {/* Premium Printable Header Bar */}
               <div className="flex justify-between items-center bg-slate-900/40 border border-slate-800/80 p-5 rounded-2xl shadow-lg no-print">
                 <div>
@@ -392,11 +393,11 @@ export default function Dashboard({ username, onLogout }) {
                   Save as PDF
                 </button>
               </div>
-              {activeTab === 'dashboard' ? (
+
+              {activeTab === 'dashboard' && (
                 <>
                   {/* Health Score Summary Row */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    
                     {/* Repository score */}
                     <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex items-center gap-4 shadow-lg">
                       <div className="w-16 h-16 rounded-full border-4 border-indigo-500 flex items-center justify-center shrink-0">
@@ -450,8 +451,9 @@ export default function Dashboard({ username, onLogout }) {
                     </div>
                   )}
                 </>
-              ) : (
-                /* Vulnerabilities Findings List */
+              )}
+
+              {activeTab === 'audit' && (
                 <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl">
                   <div className="flex justify-between items-center border-b border-slate-800 pb-4 mb-4">
                     <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">
@@ -481,7 +483,7 @@ export default function Dashboard({ username, onLogout }) {
                       {filteredFindings.map((finding, idx) => (
                         <div 
                           key={idx} 
-                          className="bg-slate-950/40 border border-slate-850 hover:border-slate-800 p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all"
+                          className="bg-slate-950/40 border border-slate-850 hover:border-slate-850 p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all"
                         >
                           <div className="space-y-2 flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
@@ -573,6 +575,7 @@ export default function Dashboard({ username, onLogout }) {
                   repoName={activeScan?.repo_name}
                 />
               )}
+
             </div>
           )}
 
@@ -588,9 +591,9 @@ export default function Dashboard({ username, onLogout }) {
               </p>
             </div>
           )}
+
         </div>
       </div>
-    </div>
     </div>
   );
 }
