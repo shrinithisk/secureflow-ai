@@ -595,5 +595,6 @@ export default function Dashboard({ username, onLogout }) {
         </div>
       </div>
     </div>
+    </div>
   );
 }
