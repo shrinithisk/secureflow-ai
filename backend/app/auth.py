@@ -1,10 +1,11 @@
+import os
 from datetime import datetime, timedelta
 import jwt
 import bcrypt
 from fastapi import HTTPException, Security, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-SECRET_KEY = "secureflow_ai_development_secret_key_change_in_production"
+SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "secureflow_ai_development_secret_key_change_in_production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 1440 # 24 hours
 
