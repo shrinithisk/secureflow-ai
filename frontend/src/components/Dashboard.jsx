@@ -43,6 +43,21 @@ export default function Dashboard({ username, onLogout }) {
   const headers = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      response => response,
+      error => {
+        if (error.response?.status === 401) {
+          onLogout();
+        }
+        return Promise.reject(error);
+      }
+    );
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, [onLogout]);
+
+  useEffect(() => {
     fetchHistory();
     fetchScannerStatus();
   }, []);
