@@ -114,7 +114,8 @@ export default function Dashboard({ username, onLogout }) {
       setRepoUrl('');
       await fetchHistory(true);
     } catch (err) {
-      setError(err.response?.data?.detail || "Scanning failed. Ensure the URL is public and valid.");
+      const errMsg = err.response?.data?.detail || err.response?.data?.message || err.response?.data || err.message || "Scanning failed. Ensure the URL is public and valid.";
+      setError(typeof errMsg === 'object' ? JSON.stringify(errMsg) : String(errMsg));
     } finally {
       setLoading(false);
       setStatusMsg('');
@@ -141,7 +142,8 @@ export default function Dashboard({ username, onLogout }) {
       e.target.reset();
       await fetchHistory(true);
     } catch (err) {
-      setError(err.response?.data?.detail || "Scanning ZIP failed. Ensure it is a valid directory structure.");
+      const errMsg = err.response?.data?.detail || err.response?.data?.message || err.response?.data || err.message || "Scanning ZIP failed. Ensure it is a valid directory structure.";
+      setError(typeof errMsg === 'object' ? JSON.stringify(errMsg) : String(errMsg));
     } finally {
       setLoading(false);
       setStatusMsg('');
