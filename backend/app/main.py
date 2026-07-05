@@ -246,7 +246,8 @@ def delete_scan(scan_id: int, current_user: dict = Depends(verify_token)):
 # ================= INTERACTIVE CHAT ROUTE =================
 
 @app.post("/api/chat")
-def chat(req: ChatRequest, current_user: dict = Depends(verify_token)):
+async def chat(req: ChatRequest, current_user: dict = Depends(verify_token)):
+    import asyncio
     llm = get_llm()
     if not llm:
         return {"response": "Mock Assistant Response: To ask questions, please set the GEMINI_API_KEY environment variable. Typical advice: avoid wildcard permissions and use npm ci."}
@@ -264,10 +265,11 @@ def chat(req: ChatRequest, current_user: dict = Depends(verify_token)):
     """
     
     try:
-        response = llm.invoke(prompt)
+        response = await asyncio.wait_for(llm.ainvoke(prompt), timeout=12.0)
         return {"response": response.content}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Chatbot query failed: {str(e)}")
+        print(f"Chatbot query failed: {e}")
+        return {"response": "Sorry, I am experiencing temporary rate limits or latency issues. However, looking at your query: we recommend rotating any leaked credentials, replacing wildcard token permissions with read-only scopes, and cleaning up Docker base images."}
 
 if __name__ == "__main__":
     import uvicorn

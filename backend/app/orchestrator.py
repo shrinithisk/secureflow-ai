@@ -88,7 +88,7 @@ async def assess_risk_node(state: PipelineState) -> Dict[str, Any]:
     """
     
     try:
-        response = await asyncio.wait_for(llm.ainvoke(prompt), timeout=6.0)
+        response = await asyncio.wait_for(llm.ainvoke(prompt), timeout=15.0)
         content = response.content.strip()
         # Clean markdown wrappers if present
         if content.startswith("```json"):
@@ -179,7 +179,7 @@ jobs:
     """
     
     try:
-        response = await asyncio.wait_for(llm.ainvoke(prompt), timeout=6.0)
+        response = await asyncio.wait_for(llm.ainvoke(prompt), timeout=15.0)
         content = response.content.strip()
         if content.startswith("```json"):
             content = content.replace("```json", "", 1).replace("```", "", 1).strip()
@@ -273,7 +273,7 @@ async def generate_remediations_node(state: PipelineState) -> Dict[str, Any]:
     """
     
     try:
-        response = await asyncio.wait_for(llm.ainvoke(prompt), timeout=6.0)
+        response = await asyncio.wait_for(llm.ainvoke(prompt), timeout=15.0)
         content = response.content.strip()
         if content.startswith("```json"):
             content = content.replace("```json", "", 1).replace("```", "", 1).strip()

@@ -38,13 +38,14 @@ def run_gitleaks(repo_path):
             with open(report_path, "r") as f:
                 raw_findings = json.load(f)
                 for leak in raw_findings:
+                    relative_path = os.path.relpath(leak.get("File", ""), repo_path)
                     findings.append({
                         "id": "leak-detected",
                         "cve": "N/A",
                         "tool": "gitleaks",
                         "type": "Hardcoded Secret",
                         "severity": "Critical",
-                        "file": leak.get("File", ""),
+                        "file": relative_path,
                         "line": leak.get("StartLine", 1),
                         "description": f"Potential leak of {leak.get('RuleID', 'credential')} (Secret: {leak.get('Secret', '')[:10]}...)",
                         "fix_suggestion": "Revoke the exposed token/key immediately, delete it from file configuration, and rotate credentials."
