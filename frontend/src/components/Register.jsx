@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Shield, Key, User, ArrowLeft, ArrowRight } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 export default function Register({ toggleLogin }) {
   const [username, setUsername] = useState('');
@@ -14,7 +15,7 @@ export default function Register({ toggleLogin }) {
     setError('');
     setLoading(true);
     try {
-      await axios.post('http://localhost:8000/api/auth/register', {
+      await axios.post(`${API_BASE_URL}/api/auth/register`, {
         username,
         password,
       });

@@ -8,6 +8,7 @@ import {
 import YAMLDiff from './YAMLDiff';
 import AIAssistantTab from './AIAssistantTab';
 import MarkdownRenderer from './MarkdownRenderer';
+import { API_BASE_URL } from '../config';
 
 const capitalizeSentences = (text) => {
   if (!text) return '';
@@ -49,7 +50,7 @@ export default function Dashboard({ username, onLogout }) {
   const fetchHistory = async (autoSelect = false) => {
     setLoadingHistory(true);
     try {
-      const response = await axios.get('http://localhost:8000/api/scans/history', { headers });
+      const response = await axios.get(`${API_BASE_URL}/api/scans/history`, { headers });
       setHistory(response.data);
       if (response.data.length > 0 && (autoSelect || !activeScan)) {
         // Load latest scan automatically
@@ -64,7 +65,7 @@ export default function Dashboard({ username, onLogout }) {
 
   const fetchScannerStatus = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/scanners/status');
+      const response = await axios.get(`${API_BASE_URL}/api/scanners/status`);
       setScannerStatus(response.data);
     } catch (err) {
       console.error("Failed to fetch scanner status:", err);
@@ -75,7 +76,7 @@ export default function Dashboard({ username, onLogout }) {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get(`http://localhost:8000/api/scans/${scanId}`, { headers });
+      const response = await axios.get(`${API_BASE_URL}/api/scans/${scanId}`, { headers });
       setActiveScan({ ...response.data, id: scanId });
     } catch (err) {
       setError("Failed to load report details.");
@@ -91,7 +92,7 @@ export default function Dashboard({ username, onLogout }) {
     setError('');
     setStatusMsg('Cloning repository and initializing state graph...');
     try {
-      await axios.post('http://localhost:8000/api/scan/url', 
+      await axios.post(`${API_BASE_URL}/api/scan/url`, 
         { repo_url: repoUrl.trim() }, 
         { headers }
       );
@@ -115,7 +116,7 @@ export default function Dashboard({ username, onLogout }) {
     formData.append('file', zipFile);
 
     try {
-      await axios.post('http://localhost:8000/api/scan/zip', formData, {
+      await axios.post(`${API_BASE_URL}/api/scan/zip`, formData, {
         headers: {
           ...headers,
           'Content-Type': 'multipart/form-data'
@@ -135,7 +136,7 @@ export default function Dashboard({ username, onLogout }) {
   const handleDeleteScan = async (scanId) => {
     if (!window.confirm("Are you sure you want to delete this scan run?")) return;
     try {
-      await axios.delete(`http://localhost:8000/api/scans/${scanId}`, { headers });
+      await axios.delete(`${API_BASE_URL}/api/scans/${scanId}`, { headers });
       if (activeScan && activeScan.id === scanId) {
         setActiveScan(null);
       }

@@ -5,6 +5,7 @@ import {
   Terminal, ShieldCheck, Key, Container, Layers, Copy
 } from 'lucide-react';
 import MarkdownRenderer from './MarkdownRenderer';
+import { API_BASE_URL } from '../config';
 
 export default function AIAssistantTab({ findingsContext, repoName }) {
   const [messages, setMessages] = useState([
@@ -95,7 +96,7 @@ export default function AIAssistantTab({ findingsContext, repoName }) {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        'http://localhost:8000/api/chat',
+        `${API_BASE_URL}/api/chat`,
         {
           question: text,
           findings_context: findingsContext || []

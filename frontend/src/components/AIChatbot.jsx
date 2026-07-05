@@ -3,6 +3,7 @@ import axios from 'axios';
 import { MessageSquare, X, Send, Bot, User } from 'lucide-react';
 
 import MarkdownRenderer from './MarkdownRenderer';
+import { API_BASE_URL } from '../config';
 
 export default function AIChatbot({ findingsContext }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,7 +35,7 @@ export default function AIChatbot({ findingsContext }) {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        'http://localhost:8000/api/chat',
+        `${API_BASE_URL}/api/chat`,
         {
           question: text,
           findings_context: findingsContext || []
