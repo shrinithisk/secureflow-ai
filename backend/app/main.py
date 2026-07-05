@@ -16,11 +16,10 @@ from app.orchestrator import run_security_pipeline, get_llm
 
 app = FastAPI(title="SecureFlow AI API", version="1.0.0")
 
-# Enable CORS for frontend integration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
