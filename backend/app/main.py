@@ -12,7 +12,7 @@ import git
 from app.database import init_db, get_db_connection
 from app.auth import get_password_hash, verify_password, create_access_token, verify_token
 from app.scanners.aggregator import get_scanners_status
-from app.orchestrator import run_security_pipeline, get_llm
+from app.orchestrator import run_security_pipeline, get_llm, get_chatbot_llm
 
 app = FastAPI(title="SecureFlow AI API", version="1.0.0")
 
@@ -247,7 +247,7 @@ def delete_scan(scan_id: int, current_user: dict = Depends(verify_token)):
 @app.post("/api/chat")
 async def chat(req: ChatRequest, current_user: dict = Depends(verify_token)):
     import asyncio
-    llm = get_llm()
+    llm = get_chatbot_llm()
     if not llm:
         return {"response": "Mock Assistant Response: To ask questions, please set the GEMINI_API_KEY environment variable. Typical advice: avoid wildcard permissions and use npm ci."}
         

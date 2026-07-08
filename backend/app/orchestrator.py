@@ -40,6 +40,18 @@ def get_llm():
         print(f"Error initializing Gemini: {e}")
         return None
 
+def get_chatbot_llm():
+    api_key = os.environ.get("CHATBOT_GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        print("WARNING: CHATBOT_GEMINI_API_KEY/GEMINI_API_KEY not set for chatbot. Using mock.")
+        return None
+    try:
+        return ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=api_key, max_retries=0)
+    except Exception as e:
+        print(f"Error initializing Chatbot Gemini: {e}")
+        return None
+
+
 # Node 1: Scan Repository
 async def scan_repo_node(state: PipelineState) -> Dict[str, Any]:
     repo_path = state["repo_path"]
