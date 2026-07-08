@@ -101,4 +101,17 @@ body {
     background: #f8fafc !important;
     margin-bottom: 1rem !important;
   }
+
+  /* Force override all hidden selectors */
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-block {
+    display: block !important;
+  }
+}
+
+.print-block {
+  display: none;
 }

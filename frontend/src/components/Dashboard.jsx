@@ -391,6 +391,17 @@ export default function Dashboard({ username, onLogout }) {
           {!loading && activeScan && (
             <div className="space-y-6">
               
+              {/* Print-Only Header: Visible only during browser printing */}
+              <div className="print-block border-b border-slate-300 pb-4 mb-6">
+                <h1 className="text-xl font-bold text-slate-900">SecureFlow AI - DevSecOps Security Audit</h1>
+                <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+                  <strong>Audited Target:</strong> {activeScan.repo_url || activeScan.repo_name}
+                </p>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Report generated on {activeScan.created_at ? new Date(activeScan.created_at).toLocaleString() : new Date().toLocaleString()}
+                </p>
+              </div>
+              
               {/* Premium Printable Header Bar */}
               <div className="flex justify-between items-center bg-slate-900/40 border border-slate-800/80 p-5 rounded-2xl shadow-lg no-print">
                 <div>
