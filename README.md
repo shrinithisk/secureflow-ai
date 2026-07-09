@@ -138,7 +138,6 @@ SecureFlow AI uses a **LangGraph Multi-Agent Architecture** where every AI agent
 # ⚙️ Complete Workflow
 
 <p align="center">
-# 🔄 Workflow Architecture
 
 ```mermaid
 flowchart TD
@@ -242,10 +241,6 @@ The complete workflow consists of the following stages:
 ---
 
 # 📂 Project Structure
-
-<p align="center">
-<img src="images/project-structure.png" width="900">
-</p>
 
 ```
 secureflow-ai/
