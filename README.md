@@ -16,7 +16,7 @@ SecureFlow AI is an intelligent DevSecOps platform that automatically audits Git
 
 ---
 
-# 📖 Overview
+#  Overview
 
 Modern software projects heavily rely on open-source libraries, Docker containers, and GitHub Actions workflows. While existing security tools can detect vulnerabilities, developers are often required to manually interpret reports, understand security risks, and implement fixes.
 
@@ -32,24 +32,24 @@ Modern software projects heavily rely on open-source libraries, Docker container
 
 ---
 
-# ✨ Features
+# Features
 
-- 🔐 Secret Detection using Gitleaks
-- 🐳 Docker Security Analysis
-- ⚙️ GitHub Actions Workflow Analysis
-- 📦 Dependency Vulnerability Detection
-- 💻 Static Code Security Analysis
-- 🤖 AI Risk Assessment
-- 📊 Repository Health Score
-- 🛠️ AI Generated Secure GitHub Actions YAML
-- 🔄 AI Generated Code Remediation
-- 💬 Interactive AI Security Assistant
-- 📁 Repository URL & ZIP Upload Support
-- 📜 Complete Scan History
+-  Secret Detection using Gitleaks
+-  Docker Security Analysis
+-  GitHub Actions Workflow Analysis
+-  Dependency Vulnerability Detection
+-  Static Code Security Analysis
+-  AI Risk Assessment
+-  Repository Health Score
+-  AI Generated Secure GitHub Actions YAML
+-  AI Generated Code Remediation
+-  Interactive AI Security Assistant
+-  Repository URL & ZIP Upload Support
+-  Complete Scan History
 
 ---
 
-# 🏗️ System Architecture
+#  System Architecture
 
 ```mermaid
 flowchart TB
@@ -135,7 +135,7 @@ SecureFlow AI uses a **LangGraph Multi-Agent Architecture** where every AI agent
 
 ---
 
-# ⚙️ Complete Workflow
+#  Complete Workflow
 
 <p align="center">
 
@@ -240,7 +240,7 @@ The complete workflow consists of the following stages:
 
 ---
 
-# 📂 Project Structure
+#  Project Structure
 
 ```
 secureflow-ai/
@@ -273,7 +273,7 @@ secureflow-ai/
 
 ---
 
-# 💻 Technology Stack
+#  Technology Stack
 
 | Category | Technology |
 |------------|------------|
@@ -436,7 +436,7 @@ This provides developers with a simple numerical representation of the overall s
 
 ---
 
-# 💾 Backend Architecture
+# Backend Architecture
 
 The backend is built using **FastAPI**, **LangGraph**, and **SQLite**.
 
@@ -453,7 +453,7 @@ The backend is built using **FastAPI**, **LangGraph**, and **SQLite**.
 
 ---
 
-# 🖥️ Frontend
+# Frontend
 
 Built using React and Tailwind CSS.
 
@@ -514,7 +514,7 @@ src="https://github.com/user-attachments/assets/90b8c458-085b-418e-825c-042665d9
 
 ---
 
-# 🛠️ Installation
+#  Installation
 
 Clone the repository
 
@@ -541,23 +541,6 @@ npm install
 
 npm run dev
 ```
-
----
-
-# 🌟 Future Enhancements
-
-- GitHub OAuth Integration
-- Automatic Pull Request Creation
-- GitHub App Support
-- CVSS-Based Scoring
-- Multi-Repository Dashboard
-- Kubernetes Security Analysis
-- Terraform Security Analysis
-- Cloud Security Modules
-- Multi-LLM Support
-
----
-
 
 ---
 ## Author
