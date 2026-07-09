@@ -125,9 +125,6 @@ flowchart TB
 
 # 🤖 Multi-Agent Architecture
 
-<p align="center">
-<img src="images/agents.png" width="1000">
-</p>
 
 SecureFlow AI uses a **LangGraph Multi-Agent Architecture** where every AI agent has a dedicated responsibility.
 
@@ -144,7 +141,90 @@ SecureFlow AI uses a **LangGraph Multi-Agent Architecture** where every AI agent
 # ⚙️ Complete Workflow
 
 <p align="center">
-<img width="592" height="850" alt="image" src="https://github.com/user-attachments/assets/78611f36-8647-4737-9cb9-7c094f163e74" />
+# 🔄 Workflow Architecture
+
+```mermaid
+flowchart TD
+
+A[User Inputs<br/>GitHub Repository URL<br/>or ZIP File]
+
+B[FastAPI Backend<br/>Request Validation]
+
+C[Repository Parser Agent<br/>Clone Repository<br/>Extract ZIP<br/>Detect Languages]
+
+D[Concurrent Security Analysis]
+
+E1[Gitleaks]
+E2[Semgrep]
+E3[Hadolint]
+E4[Actionlint]
+E5[Google OSV API]
+
+F[Vulnerability Aggregation<br/>Normalize & Prioritize Findings]
+
+G[Lead Orchestrator Agent]
+
+H1[Risk Assessment Agent]
+
+H2[Workflow Engineering Agent]
+
+H3[Remediation Agent]
+
+I[Google Gemini Flash]
+
+J[(SQLite Database)]
+
+K[React Dashboard]
+
+L[Repository Health Score]
+
+M[Vulnerability Report]
+
+N[AI Threat Summary]
+
+O[Secure GitHub Actions YAML]
+
+P[Patched Code Recommendations]
+
+Q[AI Security Assistant]
+
+A --> B
+B --> C
+C --> D
+
+D --> E1
+D --> E2
+D --> E3
+D --> E4
+D --> E5
+
+E1 --> F
+E2 --> F
+E3 --> F
+E4 --> F
+E5 --> F
+
+F --> G
+
+G --> H1
+G --> H2
+G --> H3
+
+H1 --> I
+H2 --> I
+H3 --> I
+
+I --> J
+
+J --> K
+
+K --> L
+K --> M
+K --> N
+K --> O
+K --> P
+K --> Q
+```
 
 </p>
 
