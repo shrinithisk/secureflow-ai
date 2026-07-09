@@ -244,12 +244,81 @@ def delete_scan(scan_id: int, current_user: dict = Depends(verify_token)):
 
 # ================= INTERACTIVE CHAT ROUTE =================
 
+def get_local_chatbot_response(question: str) -> str:
+    q = question.lower()
+    
+    if "secret" in q or "leak" in q or "gitleaks" in q or "credential" in q:
+        return (
+            "🔒 **Git Secrets & Credential Leakage Prevention**\n\n"
+            "Secrets leakage happens when sensitive tokens, API keys, or private keys are accidentally committed to Git history. "
+            "Even if you delete the file in a later commit, the key remains visible in the repository's historical commits.\n\n"
+            "**How to mitigate and prevent this:**\n"
+            "1. **Rotate the Secret immediately**: Consider the leaked token compromised and generate a new one.\n"
+            "2. **Purge Git History**: Use tools like `git filter-repo` or BFG Repo-Cleaner to completely remove the file from all historical commits.\n"
+            "3. **Use .gitignore**: Always add configuration files containing keys to your `.gitignore`.\n"
+            "4. **Integrate Gitleaks in CI/CD**: Add Gitleaks to your GitHub Actions workflows to block commits containing secrets before they are pushed."
+        )
+        
+    elif "docker" in q or "hadolint" in q or "container" in q:
+        return (
+            "🐳 **Dockerfile Hardening & Security Best Practices**\n\n"
+            "Insecure Dockerfiles can lead to container escape attacks, bloated image sizes, and privilege escalation vulnerabilities.\n\n"
+            "**Key recommendations for hardening:**\n"
+            "1. **Never run as root**: Always define a non-privileged user (e.g. `USER appuser`) at the end of your Dockerfile.\n"
+            "2. **Pin Image Versions**: Avoid using mutable tags like `latest`. Use specific version tags or digests (e.g. `python:3.9-slim@sha256:...`).\n"
+            "3. **Clean Cache Directories**: When running package managers, clear cache to reduce image size (e.g. `pip install --no-cache-dir` or `apt-get clean`).\n"
+            "4. **Scan Base Images**: Use Hadolint to lint your Dockerfile structure and Trivy to scan your base image layers."
+        )
+        
+    elif "action" in q or "workflow" in q or "github" in q or "ci/cd" in q or "actionlint" in q:
+        return (
+            "🚀 **GitHub Actions & CI/CD Pipeline Security**\n\n"
+            "CI/CD pipelines have access to deployment environments, making them prime targets for supply-chain attacks.\n\n"
+            "**Best practices for secure workflows:**\n"
+            "1. **Pin Actions to SHA**: Instead of `uses: actions/checkout@v4`, pin to the commit hash: `uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f`.\n"
+            "2. **Restrict GITHUB_TOKEN Permissions**: Set top-level read-only permissions: `permissions: { contents: read }`.\n"
+            "3. **Never output secrets**: Avoid using `echo` to print secrets in debug logs.\n"
+            "4. **Use Actionlint**: Integrate Actionlint in your workspace to catch syntax errors and security flaws in actions YAML files."
+        )
+        
+    elif "dependency" in q or "osv" in q or "sca" in q or "cve" in q or "package" in q:
+        return (
+            "📦 **Software Composition Analysis (SCA) & Dependency Auditing**\n\n"
+            "Open-source packages often contain known vulnerabilities (CVEs) that attackers can exploit if your project runs outdated library versions.\n\n"
+            "**How to manage dependency risks:**\n"
+            "1. **Automate Scanning**: Use the Google OSV API or `pip-audit` / `npm audit` to check manifest files (`package.json`, `requirements.txt`).\n"
+            "2. **Enable Dependabot**: Turn on GitHub Dependabot to receive automated pull requests for vulnerable packages.\n"
+            "3. **Lock Package Versions**: Always commit lock files (like `package-lock.json` or `poetry.lock`) to ensure consistent builds.\n"
+            "4. **Prune devDependencies**: Ensure production builds do not include developmental libraries."
+        )
+        
+    elif "semgrep" in q or "sast" in q or "sql" in q or "injection" in q or "xss" in q:
+        return (
+            "🔍 **Static Application Security Testing (SAST) & Code Quality**\n\n"
+            "SAST analyzes source code to identify patterns that match security flaws (like SQL injections, Cross-Site Scripting, or weak cryptography) before the app runs.\n\n"
+            "**How to write secure code:**\n"
+            "1. **Avoid Parameter Concatenation**: Never build SQL queries by joining strings (e.g. `execute(f'SELECT * FROM users WHERE name = {name}')`). Use parameterized queries.\n"
+            "2. **Sanitize Inputs**: Validate and escape all user-supplied data before rendering it in HTML to prevent XSS.\n"
+            "3. **Run Semgrep**: Integrate Semgrep rulesets into your pre-commit hooks to block insecure code from being committed."
+        )
+        
+    # Default high-quality fallback
+    return (
+        "💡 **SecureFlow AI Assistant Support**\n\n"
+        "Here are some critical security measures we recommend for your repository:\n"
+        "* **Credential Hygiene**: Ensure no passwords or API keys are committed to Git history. Use environment variables instead.\n"
+        "* **Docker Hardening**: Always specify a non-root `USER` and pin your base image tag using SHA digests.\n"
+        "* **Workflow Security**: Set minimal permissions (`permissions: { contents: read }`) in your GitHub Actions YAML.\n"
+        "* **Static Analysis**: Integrate Semgrep and Gitleaks into your CI/CD pipeline to automatically block vulnerabilities on every pull request.\n\n"
+        "*Feel free to ask me questions specifically about Gitleaks, Hadolint, Actionlint, Semgrep, or OSV dependencies!*"
+    )
+
 @app.post("/api/chat")
 async def chat(req: ChatRequest, current_user: dict = Depends(verify_token)):
     import asyncio
     llm = get_chatbot_llm()
     if not llm:
-        return {"response": "Mock Assistant Response: To ask questions, please set the GEMINI_API_KEY environment variable. Typical advice: avoid wildcard permissions and use npm ci."}
+        return {"response": get_local_chatbot_response(req.question)}
         
     prompt = f"""
     You are SecureFlow AI, an intelligent DevSecOps security assistant.
@@ -268,7 +337,8 @@ async def chat(req: ChatRequest, current_user: dict = Depends(verify_token)):
         return {"response": response.content}
     except Exception as e:
         print(f"Chatbot query failed: {e}")
-        return {"response": "Sorry, I am experiencing temporary rate limits or latency issues. However, looking at your query: we recommend rotating any leaked credentials, replacing wildcard token permissions with read-only scopes, and cleaning up Docker base images."}
+        # Return smart contextual knowledge base response instead of generic error
+        return {"response": get_local_chatbot_response(req.question)}
 
 if __name__ == "__main__":
     import uvicorn
