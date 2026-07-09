@@ -120,7 +120,7 @@ flowchart TB
 
 ---
 
-# 🤖 Multi-Agent Architecture
+# Multi-Agent Architecture
 
 
 SecureFlow AI uses a **LangGraph Multi-Agent Architecture** where every AI agent has a dedicated responsibility.
@@ -296,7 +296,7 @@ secureflow-ai/
 
 ---
 
-# 🔍 Security Analysis Pipeline
+# Security Analysis Pipeline
 
 SecureFlow AI performs a complete security audit using five specialized security scanners.
 
@@ -358,7 +358,7 @@ to detect known CVEs.
 
 ---
 
-# 🤖 AI Agents
+# AI Agents
 
 ## Lead Orchestrator Agent
 
@@ -407,7 +407,7 @@ Produces:
 
 ---
 
-# 📊 Repository Health Score
+# Repository Health Score
 
 The Repository Health Score ranges from **0 to 100**.
 
@@ -466,7 +466,7 @@ Main pages include:
 
 ---
 
-# 📷 Application Screenshots
+# Application Screenshots
 
 ## Dashboard
 
