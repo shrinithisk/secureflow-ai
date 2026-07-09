@@ -52,105 +52,74 @@ Modern software projects heavily rely on open-source libraries, Docker container
 
 # 🏗️ System Architecture
 
-<p align="center">
-                                ┌─────────────────────────────┐
-                                │         USER                │
-                                └─────────────┬───────────────┘
-                                              │
-                           Repository URL / ZIP Upload
-                                              │
-                                              ▼
-                    ┌────────────────────────────────────┐
-                    │          React Dashboard           │
-                    │                                    │
-                    │ • Dashboard                        │
-                    │ • Scan History                     │
-                    │ • AI Assistant                     │
-                    │ • Workflow Generator               │
-                    └────────────────┬───────────────────┘
-                                     │ REST API
-                                     ▼
-                    ┌────────────────────────────────────┐
-                    │         FastAPI Backend            │
-                    │                                    │
-                    │ Authentication (JWT)              │
-                    │ Request Validation                │
-                    │ File Upload Handling              │
-                    └────────────────┬───────────────────┘
-                                     │
-                                     ▼
-                    ┌────────────────────────────────────┐
-                    │      Repository Parser Agent       │
-                    │                                    │
-                    │ • Clone Git Repository            │
-                    │ • Extract ZIP File                │
-                    │ • Detect Languages                │
-                    │ • Detect Dockerfile               │
-                    │ • Detect GitHub Workflows         │
-                    └────────────────┬───────────────────┘
-                                     │
-                                     ▼
-          ┌────────────────────────────────────────────────────────┐
-          │      Concurrent Security Analysis (SAST Engine)        │
-          └────────────────────────────────────────────────────────┘
-                 │            │             │           │          │
-                 ▼            ▼             ▼           ▼          ▼
-          Gitleaks      Semgrep      Hadolint    Actionlint    Google OSV
-          Secret Scan   Code Scan    Dockerfile  CI/CD Scan    Dependency Scan
+# 🏗️ System Architecture
 
-                 └──────────────┬──────────────┬──────────────┘
-                                ▼
-               ┌────────────────────────────────────┐
-               │ Vulnerability Aggregator           │
-               │                                    │
-               │ • Merge Results                    │
-               │ • Remove Duplicates                │
-               │ • Categorize Severity              │
-               └────────────────┬───────────────────┘
-                                ▼
-               ┌────────────────────────────────────┐
-               │      LangGraph Lead Orchestrator   │
-               └────────────────┬───────────────────┘
-                                │
-          ┌─────────────────────┼──────────────────────┐
-          ▼                     ▼                      ▼
- ┌────────────────┐    ┌────────────────┐    ┌──────────────────┐
- │ Risk Assessment│    │ Workflow Agent │    │ Remediation Agent│
- │                │    │                │    │                  │
- │ Health Score   │    │ Secure YAML    │    │ Code Fixes       │
- │ Threat Summary │    │ GitHub Actions │    │ Explanations     │
- └────────────────┘    └────────────────┘    └──────────────────┘
-          │                     │                      │
-          └─────────────────────┼──────────────────────┘
-                                ▼
-                    ┌────────────────────────────────────┐
-                    │       Google Gemini Flash          │
-                    │                                    │
-                    │ AI Summaries                       │
-                    │ Workflow Generation                │
-                    │ Secure Code Recommendations        │
-                    └────────────────┬───────────────────┘
-                                     ▼
-                    ┌────────────────────────────────────┐
-                    │         SQLite Database            │
-                    │                                    │
-                    │ Users                             │
-                    │ Scan History                      │
-                    │ Reports                           │
-                    │ Health Scores                     │
-                    └────────────────┬───────────────────┘
-                                     ▼
-                    ┌────────────────────────────────────┐
-                    │         React Dashboard            │
-                    │                                    │
-                    │ Repository Health Score           │
-                    │ Vulnerability Report              │
-                    │ AI Threat Summary                 │
-                    │ Secure Workflow YAML              │
-                    │ Remediation Suggestions           │
-                    │ AI Security Assistant             │
-                    └────────────────────────────────────┘
-</p>
+```mermaid
+flowchart TB
+
+    U([User])
+
+    FE[React Frontend<br/>Dashboard • AI Assistant<br/>Workflow Generator • History]
+
+    API[FastAPI Backend<br/>JWT Authentication<br/>REST APIs]
+
+    RP[Repository Parser Agent<br/>Clone Repository<br/>Extract ZIP<br/>Detect Tech Stack]
+
+    ST[Security Analysis Engine]
+
+    GT[Gitleaks]
+    SG[Semgrep]
+    HD[Hadolint]
+    AL[Actionlint]
+    OSV[Google OSV API]
+
+    AGG[Vulnerability Aggregator]
+
+    ORCH[Lead Orchestrator Agent<br/>LangGraph]
+
+    RA[Risk Assessment Agent]
+
+    WA[Workflow Engineering Agent]
+
+    REM[Remediation Agent]
+
+    GEM[Google Gemini Flash]
+
+    DB[(SQLite Database)]
+
+    OUT[Security Report<br/>Repository Health Score<br/>Secure Workflow<br/>Patched Code<br/>AI Assistant]
+
+    U --> FE
+    FE --> API
+    API --> RP
+    RP --> ST
+
+    ST --> GT
+    ST --> SG
+    ST --> HD
+    ST --> AL
+    ST --> OSV
+
+    GT --> AGG
+    SG --> AGG
+    HD --> AGG
+    AL --> AGG
+    OSV --> AGG
+
+    AGG --> ORCH
+
+    ORCH --> RA
+    ORCH --> WA
+    ORCH --> REM
+
+    RA --> GEM
+    WA --> GEM
+    REM --> GEM
+
+    GEM --> DB
+    DB --> OUT
+    OUT --> FE
+```
 
 ---
 
