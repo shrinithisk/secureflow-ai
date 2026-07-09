@@ -53,7 +53,6 @@ Modern software projects heavily rely on open-source libraries, Docker container
 # 🏗️ System Architecture
 
 <p align="center">
-<img width="592" height="850" alt="image" src="https://github.com/user-attachments/assets/78611f36-8647-4737-9cb9-7c094f163e74" />
 
 </p>
 
@@ -80,7 +79,8 @@ SecureFlow AI uses a **LangGraph Multi-Agent Architecture** where every AI agent
 # ⚙️ Complete Workflow
 
 <p align="center">
-<img src="images/workflow.png" width="850">
+<img width="592" height="850" alt="image" src="https://github.com/user-attachments/assets/78611f36-8647-4737-9cb9-7c094f163e74" />
+
 </p>
 
 The complete workflow consists of the following stages:
