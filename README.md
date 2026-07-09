@@ -358,15 +358,30 @@ POST /api/chat
 - Security Notifications
 
 ---
+## Author
 
-# 👨‍💻 Contributors
+**K L Aadithya**
+B.Tech Computing and DataScience, Sai University, Chennai
 
-- Your Name
-- Team Member 2
-- Team Member 3
+[![GitHub](https://img.shields.io/badge/GitHub-Aadithya--kl-181717?style=flat-square&logo=github)](https://github.com/Aadithya-kl)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-k--l--aadithya-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/k-l-aadithya-62b018295)
+
+---
+**Shrinithi**
+B.Tech Computing and DataScience, Sai University, Chennai
+
+[![GitHub](https://img.shields.io/badge/GitHub-shrinithisk-181717?style=flat-square&logo=github)](https://github.com/shrinithisk)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Shrinithi-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/shrinithi-saravanakumar-04112128a/)
+
+---
+**Sankeerthana**
+B.Tech Computing and DataScience, Sai University, Chennai
+
+[![GitHub](https://img.shields.io/badge/GitHub-KoletiSankeerthana-181717?style=flat-square&logo=github)](https://github.com/KoletiSankeerthana)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Sankeerthana-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/koleti-sankeerthana-a093612a4/)
 
 
+---
+## License
 
-## 📄 License
-
-This project is developed for educational and research purposes as part of an internship in **Agentic AI and DevSecOps Security Engineering**.
+Distributed under the MIT License. See `LICENSE` for more information.
