@@ -49,16 +49,12 @@ Modern software projects heavily rely on open-source libraries, Docker container
 
 ---
 
-# 🚀 Live Demo
-
-https://secureflow-ai-pksf.vercel.app/
-
----
 
 # 🏗️ System Architecture
 
 <p align="center">
-<img src="images/workflow.png" width="900">
+<img width="592" height="850" alt="image" src="https://github.com/user-attachments/assets/78611f36-8647-4737-9cb9-7c094f163e74" />
+
 </p>
 
 > Replace the above image path with your uploaded workflow image.
