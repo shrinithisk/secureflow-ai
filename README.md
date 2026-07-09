@@ -49,9 +49,6 @@ Modern software projects heavily rely on open-source libraries, Docker container
 
 ---
 
-
-# 🏗️ System Architecture
-
 # 🏗️ System Architecture
 
 ```mermaid
