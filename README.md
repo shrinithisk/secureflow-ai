@@ -1,266 +1,383 @@
-# 🛡️ SecureFlow AI
-### Agentic DevSecOps Security Engineer
+<div align="center">
 
-SecureFlow AI is an AI-powered DevSecOps platform that automatically analyzes GitHub repositories for security vulnerabilities, insecure CI/CD workflows, leaked secrets, vulnerable dependencies, and Docker misconfigurations. Using a multi-agent architecture powered by LangGraph and Google Gemini, it not only identifies security issues but also generates secure GitHub Actions workflows, remediation suggestions, and AI-driven security reports.
+# 🛡️ SecureFlow AI
+
+### Agentic AI-Powered DevSecOps Security Engineer
+
+SecureFlow AI is an intelligent DevSecOps platform that automatically audits GitHub repositories, detects security vulnerabilities, analyzes CI/CD workflows, generates secure GitHub Actions pipelines, and provides AI-powered remediation recommendations.
 
 ---
 
-## 🚀 Features
+### 🌐 Live Demo
 
-- 🔍 Scan GitHub repositories using Repository URL or ZIP upload
-- 🤖 Multi-Agent AI architecture using LangGraph
-- 🛡️ Detect hardcoded secrets and credentials
-- 📦 Scan open-source dependencies for known vulnerabilities
-- 🐳 Audit Dockerfiles for security best practices
-- ⚙️ Analyze GitHub Actions workflows
-- 📊 Repository Health Score (0–100)
-- 📝 AI-generated security summaries
-- 🔧 Secure GitHub Actions YAML generation
-- 💡 AI-powered remediation recommendations
+**https://secureflow-ai-pksf.vercel.app/**
+
+</div>
+
+---
+
+# 📖 Overview
+
+Modern software projects heavily rely on open-source libraries, Docker containers, and GitHub Actions workflows. While existing security tools can detect vulnerabilities, developers are often required to manually interpret reports, understand security risks, and implement fixes.
+
+**SecureFlow AI** simplifies this process by combining multiple open-source security scanners with a **LangGraph-based Multi-Agent AI System** that automatically:
+
+- Detects vulnerabilities
+- Calculates repository health
+- Explains security risks
+- Generates secure GitHub Actions workflows
+- Suggests dependency upgrades
+- Produces code remediations
+- Provides an AI Security Assistant
+
+---
+
+# ✨ Features
+
+- 🔐 Secret Detection using Gitleaks
+- 🐳 Docker Security Analysis
+- ⚙️ GitHub Actions Workflow Analysis
+- 📦 Dependency Vulnerability Detection
+- 💻 Static Code Security Analysis
+- 🤖 AI Risk Assessment
+- 📊 Repository Health Score
+- 🛠️ AI Generated Secure GitHub Actions YAML
+- 🔄 AI Generated Code Remediation
 - 💬 Interactive AI Security Assistant
+- 📁 Repository URL & ZIP Upload Support
+- 📜 Complete Scan History
+
+---
+
+# 🚀 Live Demo
+
+https://secureflow-ai-pksf.vercel.app/
 
 ---
 
 # 🏗️ System Architecture
 
-```
-                        User
-                          │
-        ┌─────────────────┴─────────────────┐
-        │                                   │
- Repository URL                     ZIP Upload
-        │                                   │
-        └─────────────────┬─────────────────┘
-                          │
-                  Repository Parser Agent
-                          │
-                          ▼
-              Lead Orchestrator Agent
-                     (LangGraph)
-                          │
-     ┌──────────────┬──────────────┬──────────────┐
-     │              │              │              │
-     ▼              ▼              ▼              ▼
-SAST Engine   Risk Assessment  Workflow AI  Remediation AI
-     │
-     ├── Gitleaks
-     ├── Semgrep
-     ├── Hadolint
-     ├── Actionlint
-     └── OSV Scanner
-                          │
-                          ▼
-                   SQLite Database
-                          │
-                          ▼
-                 React Dashboard
-```
+<p align="center">
+<img src="images/workflow.png" width="900">
+</p>
+
+> Replace the above image path with your uploaded workflow image.
 
 ---
 
 # 🤖 Multi-Agent Architecture
 
-### 1. Lead Orchestrator Agent
-- Coordinates the complete security pipeline.
-- Maintains shared pipeline state.
-- Controls execution order of all agents.
+<p align="center">
+<img src="images/agents.png" width="1000">
+</p>
 
-### 2. Repository Parser Agent
-- Clones GitHub repositories or extracts ZIP uploads.
-- Detects programming languages and frameworks.
-- Identifies Dockerfiles, workflows, and dependency files.
+SecureFlow AI uses a **LangGraph Multi-Agent Architecture** where every AI agent has a dedicated responsibility.
 
-### 3. Risk Assessment Agent
-- Aggregates scanner results.
-- Calculates Repository Health Score.
-- Generates AI security summaries.
-
-### 4. Workflow Engineering Agent
-- Creates secure GitHub Actions workflows.
-- Applies DevSecOps best practices.
-- Generates production-ready YAML pipelines.
-
-### 5. Remediation Agent
-- Generates vulnerability fixes.
-- Suggests secure code replacements.
-- Produces AI-powered remediation recommendations.
+| Agent | Responsibility |
+|---------|---------------|
+| Lead Orchestrator Agent | Coordinates the complete security pipeline |
+| Repository Parser Agent | Detects languages, frameworks and project structure |
+| Risk Assessment Agent | Calculates Repository Health Score and summarizes threats |
+| Workflow Engineering Agent | Generates secure GitHub Actions workflows |
+| Remediation Agent | Produces secure code patches and recommendations |
 
 ---
 
-# 🔍 Security Analysis Tools
+# ⚙️ Complete Workflow
 
-| Tool | Purpose |
-|------|----------|
-| Gitleaks | Detects hardcoded secrets and API keys |
-| Semgrep | Static Application Security Testing (SAST) |
-| Hadolint | Dockerfile Security Analysis |
-| Actionlint | GitHub Actions Workflow Analysis |
-| OSV Scanner | Dependency Vulnerability Detection |
+<p align="center">
+<img src="images/workflow.png" width="850">
+</p>
 
----
+The complete workflow consists of the following stages:
 
-# 📊 Repository Health Score
-
-Every repository starts with a score of **100**.
-
-Security findings reduce the score based on their severity.
-
-```
-Repository Health Score
-
-= max(0,100 − Total Deduction)
-```
-
-Where,
-
-```
-Total Deduction
-
-= (Critical × 25)
-
-+ (High × 15)
-
-+ (Medium × 5)
-
-+ (Low × 1)
-```
-
-| Severity | Penalty |
-|----------|----------|
-| Critical | -25 |
-| High | -15 |
-| Medium | -5 |
-| Low | -1 |
-
----
-
-# 💻 Technology Stack
-
-## Frontend
-
-- React.js
-- Tailwind CSS
-- Axios
-
-## Backend
-
-- FastAPI
-- Python
-- LangGraph
-- LangChain
-- Asyncio
-
-## AI
-
-- Google Gemini Flash
-
-## Database
-
-- SQLite
-
-## Deployment
-
-- Docker
-- Render
+1. User submits a GitHub Repository URL or uploads a ZIP project.
+2. FastAPI receives and validates the request.
+3. Repository Parser clones/extracts the project.
+4. Five security scanners execute concurrently.
+5. Results are aggregated and normalized.
+6. LangGraph orchestrates AI reasoning.
+7. AI evaluates repository health.
+8. AI generates secure GitHub Actions YAML.
+9. AI generates code remediations.
+10. Reports are stored inside SQLite.
+11. Results are displayed on the React Dashboard.
 
 ---
 
 # 📂 Project Structure
 
+<p align="center">
+<img src="images/project-structure.png" width="900">
+</p>
+
 ```
-SecureFlow-AI
+secureflow-ai/
 │
-├── frontend
-│   ├── src
-│   ├── public
-│   └── package.json
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── auth.py
+│   │   ├── database.py
+│   │   ├── orchestrator.py
+│   │   └── scanners/
+│   │        ├── aggregator.py
+│   │        ├── gitleaks_wrapper.py
+│   │        ├── hadolint_wrapper.py
+│   │        ├── actionlint_wrapper.py
+│   │        ├── semgrep_wrapper.py
+│   │        └── osv_wrapper.py
+│   ├── Dockerfile
+│   └── requirements.txt
 │
-├── backend
-│   ├── app
-│   │
-│   ├── scanners
-│   │
-│   ├── orchestrator.py
-│   ├── database.py
-│   ├── main.py
-│   └── Dockerfile
+├── frontend/
+│   ├── src/
+│   │    ├── components/
+│   │    ├── App.jsx
+│   │    └── config.js
+│   └── vercel.json
 │
-├── README.md
-└── requirements.txt
+└── README.md
 ```
 
 ---
 
-# 🖥️ Application Pages
+# 💻 Technology Stack
 
-## 🏠 Home Page
-
-**Screenshot**
-
-> *(Add Homepage Screenshot Here)*
-
-Features:
-
-- Platform Overview
-- Navigation
-- Feature Highlights
-
----
-
-## 🔍 Repository Analysis
-
-**Screenshot**
-
-> *(Add Repository Scan Screenshot Here)*
-
-Features:
-
-- Repository URL Input
-- ZIP Upload
-- Scan Trigger
+| Category | Technology |
+|------------|------------|
+| Frontend | React.js |
+| Styling | Tailwind CSS |
+| Backend | FastAPI |
+| Programming Language | Python 3 |
+| AI Framework | LangGraph |
+| LLM | Google Gemini Flash |
+| Database | SQLite |
+| Authentication | JWT |
+| Secret Detection | Gitleaks |
+| Static Code Analysis | Semgrep |
+| Docker Security | Hadolint |
+| GitHub Actions Analysis | Actionlint |
+| Dependency Analysis | Google OSV API |
+| Containerization | Docker |
+| Deployment | Render + Vercel |
+| Version Control | Git & GitHub |
 
 ---
 
-## 📊 Security Dashboard
+# 🔍 Security Analysis Pipeline
 
-**Screenshot**
+SecureFlow AI performs a complete security audit using five specialized security scanners.
 
-> *(Add Results Dashboard Screenshot Here)*
+## 1️⃣ Gitleaks
 
-Displays:
+Detects:
 
-- Repository Health Score
-- Severity Distribution
-- Security Findings
-- AI Threat Summary
-
----
-
-## 💬 AI Security Assistant
-
-**Screenshot**
-
-> *(Add AI Chat Screenshot Here)*
-
-Features:
-
-- Interactive Security Chat
-- Security Explanations
-- Best Practice Recommendations
+- API Keys
+- Passwords
+- Tokens
+- Secrets
+- Private Keys
 
 ---
 
-# ⚙️ Installation
+## 2️⃣ Semgrep
 
-## Clone Repository
+Performs Static Application Security Testing (SAST) to detect:
+
+- SQL Injection
+- Command Injection
+- XSS
+- Hardcoded Credentials
+- Insecure Coding Patterns
+
+---
+
+## 3️⃣ Hadolint
+
+Analyzes Dockerfiles for:
+
+- Root User
+- Latest Image Tags
+- Docker Best Practices
+- Layer Optimization
+
+---
+
+## 4️⃣ Actionlint
+
+Audits GitHub Actions workflows for:
+
+- Syntax Errors
+- Workflow Misconfigurations
+- Insecure Permissions
+- CI/CD Best Practices
+
+---
+
+## 5️⃣ Google OSV API
+
+Checks dependency manifests including:
+
+- package.json
+- requirements.txt
+- pom.xml
+
+to detect known CVEs.
+
+---
+
+# 🤖 AI Agents
+
+## Lead Orchestrator Agent
+
+- Coordinates every stage of the pipeline
+- Maintains shared LangGraph state
+- Combines outputs from all agents
+
+---
+
+## Repository Parser Agent
+
+- Clones repositories
+- Extracts ZIP files
+- Detects project languages
+- Identifies Dockerfiles and GitHub workflows
+
+---
+
+## Risk Assessment Agent
+
+- Calculates Repository Health Score
+- Prioritizes vulnerabilities
+- Generates AI Threat Summary
+
+---
+
+## Workflow Engineering Agent
+
+Automatically generates:
+
+- Secure GitHub Actions Workflow
+- Least Privilege Permissions
+- Version Pinning
+- Security Best Practices
+
+---
+
+## Remediation Agent
+
+Produces:
+
+- AI Code Fixes
+- Secure Code Examples
+- Dependency Upgrade Suggestions
+- YAML Improvements
+
+---
+
+# 📊 Repository Health Score
+
+The Repository Health Score ranges from **0 to 100**.
+
+Every repository starts with a score of **100**.
+
+Security findings deduct points based on severity.
+
+| Severity | Penalty |
+|-----------|----------|
+| Critical | -25 |
+| High | -15 |
+| Medium | -5 |
+| Low | -1 |
+
+Formula:
+
+```
+Repository Health Score
+
+= max(0,
+
+100 − Σ(Severity Weight × Number of Findings))
+```
+
+This provides developers with a simple numerical representation of the overall security posture of the repository.
+
+---
+
+# 💾 Backend Architecture
+
+The backend is built using **FastAPI**, **LangGraph**, and **SQLite**.
+
+### Backend Responsibilities
+
+- Repository cloning
+- Concurrent scanner execution
+- AI orchestration
+- Repository scoring
+- Workflow generation
+- Code remediation
+- Authentication
+- Scan history
+
+---
+
+# 🖥️ Frontend
+
+Built using React and Tailwind CSS.
+
+Main pages include:
+
+- Dashboard
+- AI Chat
+- GitHub Actions Generator
+- AI Assistant
+
+---
+
+# 📷 Application Screenshots
+
+## Dashboard
+
+```
+Add Dashboard Screenshot Here
+```
+
+---
+
+## Scan Results
+
+```
+Add Scan Results Screenshot Here
+```
+
+---
+
+## AI Assistant
+
+```
+Add AI Chat Screenshot Here
+```
+
+---
+
+## GitHub Actions Generator
+
+```
+Add YAML Generator Screenshot Here
+```
+
+---
+
+# 🛠️ Installation
+
+Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/SecureFlow-AI.git
+git clone https://github.com/yourusername/secureflow-ai.git
 ```
 
----
-
-## Backend
+Backend
 
 ```bash
 cd backend
@@ -270,9 +387,7 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
----
-
-## Frontend
+Frontend
 
 ```bash
 cd frontend
@@ -284,78 +399,20 @@ npm run dev
 
 ---
 
-# 🔗 API Endpoints
-
-## Authentication
-
-```
-POST /api/register
-
-POST /api/login
-```
-
----
-
-## Repository Scanning
-
-```
-POST /api/scan/url
-
-POST /api/scan/zip
-```
-
----
-
-## AI Assistant
-
-```
-POST /api/chat
-```
-
----
-
-# 📸 Demo
-
-## Repository Scan
-
-> *(Add Scan Demo Screenshot)*
-
----
-
-## Security Dashboard
-
-> *(Add Dashboard Screenshot)*
-
----
-
-## Generated GitHub Actions Workflow
-
-> *(Add YAML Screenshot)*
-
----
-
-## AI Remediation Suggestions
-
-> *(Add Remediation Screenshot)*
-
----
-
-## AI Chat Assistant
-
-> *(Add Chat Screenshot)*
-
----
-
-# 🚀 Future Enhancements
+# 🌟 Future Enhancements
 
 - GitHub OAuth Integration
-- Pull Request Security Reviews
-- Automatic Pull Request Generation
-- Git Patch Downloads
-- Team Collaboration
-- Real-Time Security Monitoring
+- Automatic Pull Request Creation
+- GitHub App Support
+- CVSS-Based Scoring
 - Multi-Repository Dashboard
-- Security Notifications
+- Kubernetes Security Analysis
+- Terraform Security Analysis
+- Cloud Security Modules
+- Multi-LLM Support
+
+---
+
 
 ---
 ## Author
