@@ -335,7 +335,8 @@ Main pages include:
 
 ```
 <p align="center">
-<img width="1911" height="857" alt="image" src="https://github.com/user-attachments/assets/5b77ec51-4255-418a-941b-fee8e65bb53b" />
+<img width="1911" height="857" alt="Dashboard"
+src="https://github.com/user-attachments/assets/5b77ec51-4255-418a-941b-fee8e65bb53b"/>
 </p>
 ```
 
@@ -345,13 +346,18 @@ Main pages include:
 
 ```
 <p align="center">
-<img width="1892" height="872" alt="image" src="https://github.com/user-attachments/assets/4c874a70-ef17-4c59-9acb-010517cb64d3" />
-</p>
-<p align="center">
-<img width="1885" height="860" alt="image" src="https://github.com/user-attachments/assets/b1f75f74-f608-408f-ae8f-f06b93a98f82" />
-</p>
-<p align="center">
-<img width="1882" height="852" alt="image" src="https://github.com/user-attachments/assets/1be18982-fddb-49a3-88bb-f5cb9eac80ec" />
+<img width="1892" height="872"
+src="https://github.com/user-attachments/assets/4c874a70-ef17-4c59-9acb-010517cb64d3"/>
+
+<br><br>
+
+<img width="1885" height="860"
+src="https://github.com/user-attachments/assets/b1f75f74-f608-408f-ae8f-f06b93a98f82"/>
+
+<br><br>
+
+<img width="1882" height="852"
+src="https://github.com/user-attachments/assets/1be18982-fddb-49a3-88bb-f5cb9eac80ec"/>
 </p>
 
 ```
@@ -362,9 +368,9 @@ Main pages include:
 
 ```
 <p align="center">
-<img width="1910" height="871" alt="image" src="https://github.com/user-attachments/assets/93cfaab0-2ec8-462d-8a65-1b94f98d92d9" />
+<img width="1910" height="871"
+src="https://github.com/user-attachments/assets/93cfaab0-2ec8-462d-8a65-1b94f98d92d9"/>
 </p>
-
 ```
 
 ---
@@ -373,7 +379,8 @@ Main pages include:
 
 ```
 <p align="center">
-<img width="707" height="838" alt="image" src="https://github.com/user-attachments/assets/90b8c458-085b-418e-825c-042665d9ea65" />
+<img width="707" height="838"
+src="https://github.com/user-attachments/assets/90b8c458-085b-418e-825c-042665d9ea65"/>
 </p>
 
 ```
