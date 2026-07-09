@@ -316,10 +316,8 @@ def get_local_chatbot_response(question: str) -> str:
 @app.post("/api/chat")
 async def chat(req: ChatRequest, current_user: dict = Depends(verify_token)):
     import asyncio
-    llm = get_chatbot_llm()
-    if not llm:
-        return {"response": get_local_chatbot_response(req.question)}
-        
+    import httpx
+    
     prompt = f"""
     You are SecureFlow AI, an intelligent DevSecOps security assistant.
     The developer is asking a question about their code scan or CI/CD workflow security.
@@ -332,13 +330,45 @@ async def chat(req: ChatRequest, current_user: dict = Depends(verify_token)):
     Provide a clear, educational, and developer-friendly answer explaining security concepts, risks, and how to remediate them. Keep code snippets clean and concise.
     """
     
-    try:
-        response = await asyncio.wait_for(llm.ainvoke(prompt), timeout=12.0)
-        return {"response": response.content}
-    except Exception as e:
-        print(f"Chatbot query failed: {e}")
-        # Return smart contextual knowledge base response instead of generic error
-        return {"response": get_local_chatbot_response(req.question)}
+    # 1. Try Groq first if key is present (super-fast, high limit)
+    groq_key = os.environ.get("GROQ_API_KEY")
+    if groq_key:
+        try:
+            async with httpx.AsyncClient() as client:
+                resp = await client.post(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {groq_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": "llama3-8b-8192",
+                        "messages": [
+                            {"role": "user", "content": prompt}
+                        ],
+                        "temperature": 0.7
+                    },
+                    timeout=12.0
+                )
+                if resp.status_code == 200:
+                    result = resp.json()
+                    return {"response": result["choices"][0]["message"]["content"]}
+                else:
+                    print(f"Groq API returned error status {resp.status_code}: {resp.text}")
+        except Exception as e:
+            print(f"Groq query failed: {e}")
+
+    # 2. Fall back to Gemini if Groq is not set or fails
+    llm = get_chatbot_llm()
+    if llm:
+        try:
+            response = await asyncio.wait_for(llm.ainvoke(prompt), timeout=12.0)
+            return {"response": response.content}
+        except Exception as e:
+            print(f"Gemini Chatbot query failed: {e}")
+
+    # 3. Fall back to smart local knowledge base if all APIs fail
+    return {"response": get_local_chatbot_response(req.question)}
 
 if __name__ == "__main__":
     import uvicorn
