@@ -57,8 +57,6 @@ Modern software projects heavily rely on open-source libraries, Docker container
 
 </p>
 
-> Replace the above image path with your uploaded workflow image.
-
 ---
 
 # 🤖 Multi-Agent Architecture
@@ -336,7 +334,8 @@ Main pages include:
 ## Dashboard
 
 ```
-Add Dashboard Screenshot Here
+<img width="1911" height="857" alt="image" src="https://github.com/user-attachments/assets/5b77ec51-4255-418a-941b-fee8e65bb53b" />
+
 ```
 
 ---
@@ -344,7 +343,12 @@ Add Dashboard Screenshot Here
 ## Scan Results
 
 ```
-Add Scan Results Screenshot Here
+<img width="1892" height="872" alt="image" src="https://github.com/user-attachments/assets/4c874a70-ef17-4c59-9acb-010517cb64d3" />
+<img width="1885" height="860" alt="image" src="https://github.com/user-attachments/assets/b1f75f74-f608-408f-ae8f-f06b93a98f82" />
+<img width="1882" height="852" alt="image" src="https://github.com/user-attachments/assets/1be18982-fddb-49a3-88bb-f5cb9eac80ec" />
+
+
+
 ```
 
 ---
@@ -352,7 +356,8 @@ Add Scan Results Screenshot Here
 ## AI Assistant
 
 ```
-Add AI Chat Screenshot Here
+<img width="1910" height="871" alt="image" src="https://github.com/user-attachments/assets/93cfaab0-2ec8-462d-8a65-1b94f98d92d9" />
+
 ```
 
 ---
@@ -360,7 +365,8 @@ Add AI Chat Screenshot Here
 ## GitHub Actions Generator
 
 ```
-Add YAML Generator Screenshot Here
+<img width="707" height="838" alt="image" src="https://github.com/user-attachments/assets/90b8c458-085b-418e-825c-042665d9ea65" />
+
 ```
 
 ---
