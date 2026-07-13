@@ -31,6 +31,7 @@ export default function Dashboard({ username, onLogout }) {
   const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, workflows, ai-assistant
   const [expandedFindings, setExpandedFindings] = useState({});
   const [applyingFix, setApplyingFix] = useState(null);
+  const [githubToken, setGithubToken] = useState(localStorage.getItem('github_token') || '');
 
   useEffect(() => {
     setExpandedFindings({});
@@ -171,7 +172,10 @@ export default function Dashboard({ username, onLogout }) {
     try {
       const response = await axios.post(
         `${API_BASE_URL}/api/scans/${activeScan.id}/apply-fix`,
-        { finding_index: originalIndex },
+        { 
+          finding_index: originalIndex,
+          github_token: githubToken || null
+        },
         { headers }
       );
       // Merge the database scan ID and info back into the returned LangGraph state object
@@ -336,6 +340,40 @@ export default function Dashboard({ username, onLogout }) {
                 Scan ZIP Package
               </button>
             </form>
+          </div>
+
+          {/* GitHub Auto-Fix Integration Widget */}
+          <div className="bg-[#0f172a] border border-slate-800/80 rounded-2xl p-5 shadow-xl">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+              <Globe className="w-4 h-4 text-indigo-400" />
+              GitHub Auto-Fix Integration
+            </h3>
+            <p className="text-[10px] text-slate-500 mb-3 leading-normal">
+              Provide a Personal Access Token (PAT) with `repo` write scope to automatically commit security patches back to GitHub.
+            </p>
+            <div className="space-y-2.5">
+              <input
+                type="password"
+                placeholder="Enter GitHub Personal Access Token..."
+                className="w-full text-xs text-slate-300 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2.5 focus:outline-none"
+                value={githubToken}
+                onChange={(e) => {
+                  setGithubToken(e.target.value);
+                  localStorage.setItem('github_token', e.target.value);
+                }}
+              />
+              {githubToken && (
+                <button
+                  onClick={() => {
+                    setGithubToken('');
+                    localStorage.removeItem('github_token');
+                  }}
+                  className="w-full text-[10px] font-bold text-red-400 hover:text-red-300 bg-red-950/20 hover:bg-red-950/30 border border-red-900/35 hover:border-red-900/50 py-1.5 rounded-lg transition-all focus:outline-none cursor-pointer"
+                >
+                  Clear Token
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Scanner Host Status Dashboard */}

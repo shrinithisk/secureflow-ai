@@ -244,13 +244,14 @@ def delete_scan(scan_id: int, current_user: dict = Depends(verify_token)):
 
 class ApplyFixRequest(BaseModel):
     finding_index: int
+    github_token: Optional[str] = None
 
 @app.post("/api/scans/{scan_id}/apply-fix")
 def apply_fix(scan_id: int, request: ApplyFixRequest, current_user: dict = Depends(verify_token)):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT report_json FROM scans WHERE id = ? AND user_id = ?
+        SELECT repo_url, report_json FROM scans WHERE id = ? AND user_id = ?
     """, (scan_id, current_user["user_id"]))
     row = cursor.fetchone()
     
@@ -289,6 +290,85 @@ def apply_fix(scan_id: int, request: ApplyFixRequest, current_user: dict = Depen
     else:
         report_data["health_scores"] = {"repo_score": new_score, "pipeline_score": 100}
         
+    # If GitHub token is provided, attempt to push the patch directly to GitHub
+    github_token = request.github_token
+    repo_url = row["repo_url"]
+    
+    if github_token and repo_url and "github.com" in repo_url:
+        import base64
+        import httpx
+        try:
+            url_clean = repo_url.rstrip("/")
+            parts = url_clean.split("github.com/")[-1].split("/")
+            if len(parts) >= 2:
+                owner = parts[0]
+                repo = parts[1].replace(".git", "")
+                
+                finding = findings[idx]
+                file_path = finding.get("file")
+                
+                # Retrieve original and patched code blocks from remediations
+                remediations = report_data.get("remediations", [])
+                original_block = None
+                patched_block = None
+                
+                for rem in remediations:
+                    if rem.get("file") == file_path:
+                        original_block = rem.get("original")
+                        patched_block = rem.get("patched")
+                        break
+                        
+                if not original_block and finding.get("code_snippet"):
+                    original_block = finding.get("code_snippet")
+                    # If we don't have a structured patched block, fallback to recommendation
+                    if finding.get("fix_suggestion"):
+                        patched_block = finding.get("fix_suggestion")
+                        
+                if file_path and original_block and patched_block:
+                    print(f"Pushing commit to GitHub for {owner}/{repo}: {file_path}")
+                    github_api_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}"
+                    headers = {
+                        "Authorization": f"token {github_token}",
+                        "Accept": "application/vnd.github.v3+json"
+                    }
+                    
+                    with httpx.Client() as client:
+                        get_resp = client.get(github_api_url, headers=headers, timeout=10.0)
+                        if get_resp.status_code == 200:
+                            file_meta = get_resp.json()
+                            file_sha = file_meta.get("sha")
+                            encoded_content = file_meta.get("content", "")
+                            
+                            current_content = base64.b64decode(encoded_content).decode("utf-8", errors="ignore")
+                            
+                            # Clean replacement
+                            if original_block in current_content:
+                                updated_content = current_content.replace(original_block, patched_block)
+                            else:
+                                clean_orig = original_block.strip()
+                                if clean_orig in current_content:
+                                    updated_content = current_content.replace(clean_orig, patched_block)
+                                else:
+                                    updated_content = current_content.replace(original_block.strip(), patched_block.strip())
+                                    
+                            if updated_content != current_content:
+                                put_body = {
+                                    "message": f"SecureFlow AI: Automated code hardening patch for {os.path.basename(file_path)}",
+                                    "content": base64.b64encode(updated_content.encode("utf-8")).decode("utf-8"),
+                                    "sha": file_sha
+                                }
+                                put_resp = client.put(github_api_url, headers=headers, json=put_body, timeout=10.0)
+                                if put_resp.status_code in [200, 201]:
+                                    print("GitHub Commit successfully created!")
+                                else:
+                                    print(f"Failed to create GitHub Commit: {put_resp.status_code} - {put_resp.text}")
+                            else:
+                                print("No diff detected or original block not matching in current file content.")
+                        else:
+                            print(f"Failed to fetch file from GitHub: {get_resp.status_code} - {get_resp.text}")
+        except Exception as ex:
+            print(f"Failed to apply patch directly to GitHub: {ex}")
+            
     updated_report_json = json.dumps(report_data)
     
     cursor.execute("""
