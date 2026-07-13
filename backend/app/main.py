@@ -242,6 +242,66 @@ def delete_scan(scan_id: int, current_user: dict = Depends(verify_token)):
     conn.close()
     return {"message": "Scan report deleted successfully"}
 
+class ApplyFixRequest(BaseModel):
+    finding_index: int
+
+@app.post("/api/scans/{scan_id}/apply-fix")
+def apply_fix(scan_id: int, request: ApplyFixRequest, current_user: dict = Depends(verify_token)):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT report_json FROM scans WHERE id = ? AND user_id = ?
+    """, (scan_id, current_user["user_id"]))
+    row = cursor.fetchone()
+    
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Scan report not found")
+        
+    report_data = json.loads(row["report_json"])
+    findings = report_data.get("findings", [])
+    
+    idx = request.finding_index
+    if idx < 0 or idx >= len(findings):
+        conn.close()
+        raise HTTPException(status_code=400, detail="Invalid finding index")
+        
+    # Mark finding as fixed
+    findings[idx]["fixed"] = True
+    
+    # Recalculate score
+    weights = {"Critical": 25, "High": 15, "Medium": 5, "Low": 1}
+    severity_counts = {"Critical": 0, "High": 0, "Medium": 0, "Low": 0}
+    for f in findings:
+        if f.get("fixed") is True:
+            continue
+        sev = f.get("severity", "Medium")
+        if sev in severity_counts:
+            severity_counts[sev] += 1
+            
+    deduction = sum(weights[k] * severity_counts[k] for k in weights)
+    new_score = max(0, 100 - deduction)
+    
+    # Update report payload and scores
+    report_data["findings"] = findings
+    if "health_scores" in report_data:
+        report_data["health_scores"]["repo_score"] = new_score
+    else:
+        report_data["health_scores"] = {"repo_score": new_score, "pipeline_score": 100}
+        
+    updated_report_json = json.dumps(report_data)
+    
+    cursor.execute("""
+        UPDATE scans 
+        SET score = ?, report_json = ? 
+        WHERE id = ? AND user_id = ?
+    """, (new_score, updated_report_json, scan_id, current_user["user_id"]))
+    
+    conn.commit()
+    conn.close()
+    
+    return report_data
+
 # ================= INTERACTIVE CHAT ROUTE =================
 
 def get_local_chatbot_response(question: str) -> str:

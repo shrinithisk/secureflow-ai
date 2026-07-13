@@ -30,6 +30,7 @@ export default function Dashboard({ username, onLogout }) {
   const [severityFilter, setSeverityFilter] = useState('All');
   const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, workflows, ai-assistant
   const [expandedFindings, setExpandedFindings] = useState({});
+  const [applyingFix, setApplyingFix] = useState(null);
 
   useEffect(() => {
     setExpandedFindings({});
@@ -161,6 +162,37 @@ export default function Dashboard({ username, onLogout }) {
     } catch (err) {
       console.error("Failed to delete scan:", err);
       alert("Failed to delete scan");
+    }
+  };
+
+  const applySecurityFix = async (originalIndex) => {
+    if (!activeScan) return;
+    setApplyingFix(originalIndex);
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/api/scans/${activeScan.id}/apply-fix`,
+        { finding_index: originalIndex },
+        { headers }
+      );
+      // Merge the database scan ID and info back into the returned LangGraph state object
+      const updatedScan = {
+        ...activeScan,
+        ...response.data,
+        health_scores: response.data.health_scores
+      };
+      setActiveScan(updatedScan);
+      
+      // Update history list with new score
+      setHistory(prev => prev.map(s => 
+        s.id === activeScan.id 
+          ? { ...s, score: response.data.health_scores.repo_score } 
+          : s
+      ));
+    } catch (err) {
+      console.error("Failed to apply security fix:", err);
+      alert("Error applying fix: " + (err.response?.data?.detail || err.message));
+    } finally {
+      setApplyingFix(null);
     }
   };
 
@@ -522,7 +554,11 @@ export default function Dashboard({ username, onLogout }) {
                       {filteredFindings.map((finding, idx) => (
                         <div 
                           key={idx} 
-                          className="bg-slate-950/40 border border-slate-850 hover:border-slate-850 p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all"
+                          className={`p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all ${
+                            finding.fixed 
+                              ? 'bg-emerald-950/10 border border-emerald-500/30' 
+                              : 'bg-slate-950/40 border border-slate-850 hover:border-slate-800'
+                          }`}
                         >
                           <div className="space-y-2 flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
@@ -581,9 +617,40 @@ export default function Dashboard({ username, onLogout }) {
                           </div>
 
                           {finding.fix_suggestion && (
-                            <div className="md:max-w-xs w-full bg-slate-900/60 p-3 rounded-lg border border-slate-800/80 text-xs text-indigo-200 shrink-0">
-                              <span className="font-bold block text-indigo-400 mb-1">Recommendation:</span>
-                              <MarkdownRenderer content={capitalizeSentences(finding.fix_suggestion)} className="text-indigo-200" marginClass="my-0.5" />
+                            <div className="md:max-w-xs w-full bg-slate-900/60 p-3 rounded-lg border border-slate-800/80 text-xs text-indigo-200 shrink-0 flex flex-col justify-between">
+                              <div>
+                                <span className="font-bold block text-indigo-400 mb-1">Recommendation:</span>
+                                <MarkdownRenderer content={capitalizeSentences(finding.fix_suggestion)} className="text-indigo-200" marginClass="my-0.5" />
+                              </div>
+                              <div className="mt-3 border-t border-slate-800/40 pt-2.5">
+                                {finding.fixed ? (
+                                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-950/40 border border-emerald-900/40 text-emerald-400 rounded-lg text-xs font-bold w-full justify-center">
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    Fix Applied
+                                  </span>
+                                ) : (
+                                  <button
+                                    onClick={() => {
+                                      const originalIndex = activeScan.findings.findIndex(f => f === finding);
+                                      applySecurityFix(originalIndex);
+                                    }}
+                                    disabled={applyingFix !== null}
+                                    className="w-full py-1.5 px-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer focus:outline-none"
+                                  >
+                                    {applyingFix === activeScan.findings.findIndex(f => f === finding) ? (
+                                      <>
+                                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                        Applying...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <CheckCircle2 className="w-3.5 h-3.5" />
+                                        Apply Auto-Fix
+                                      </>
+                                    )}
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           )}
                         </div>
