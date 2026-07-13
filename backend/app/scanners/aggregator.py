@@ -45,16 +45,18 @@ async def run_all_scans(repo_path):
     osv_task = scan_dependencies(repo_path)
     
     # Wait for all scanners to complete
-    gitleaks_res, hadolint_res, actionlint_res, semgrep_res, osv_res = await asyncio.gather(
+    gitleaks_res, hadolint_res, actionlint_res, semgrep_res, osv_res_tuple = await asyncio.gather(
         gitleaks_task, hadolint_task, actionlint_task, semgrep_task, osv_task
     )
+    
+    osv_findings, osv_deps = osv_res_tuple
     
     raw_findings = []
     raw_findings.extend(gitleaks_res)
     raw_findings.extend(hadolint_res)
     raw_findings.extend(actionlint_res)
     raw_findings.extend(semgrep_res)
-    raw_findings.extend(osv_res)
+    raw_findings.extend(osv_findings)
     
     # Deduplicate findings
     deduped_findings = []
@@ -77,4 +79,7 @@ async def run_all_scans(repo_path):
             deduped_findings.append(f)
             
     print(f"Aggregation complete. Found {len(deduped_findings)} unique vulnerabilities.")
-    return deduped_findings
+    return {
+        "findings": deduped_findings,
+        "dependencies": osv_deps
+    }

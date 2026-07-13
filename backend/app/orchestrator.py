@@ -26,6 +26,7 @@ class PipelineState(TypedDict):
     optimized_workflows: List[Dict[str, Any]]
     remediations: List[Dict[str, Any]]
     health_scores: Dict[str, int]
+    dependencies: List[Dict[str, Any]]
 
 # Initialize LLM
 def get_llm():
@@ -34,7 +35,6 @@ def get_llm():
         print("WARNING: GEMINI_API_KEY environment variable not set. Using mock LLM responses.")
         return None
     try:
-        # Use gemini-2.5-flash for low latency and high quality, set max_retries=0 to prevent connection timeouts on rate limits
         return ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=api_key, max_retries=0)
     except Exception as e:
         print(f"Error initializing Gemini: {e}")
@@ -55,8 +55,11 @@ def get_chatbot_llm():
 # Node 1: Scan Repository
 async def scan_repo_node(state: PipelineState) -> Dict[str, Any]:
     repo_path = state["repo_path"]
-    findings = await run_all_scans(repo_path)
-    return {"findings": findings}
+    scan_results = await run_all_scans(repo_path)
+    return {
+        "findings": scan_results["findings"],
+        "dependencies": scan_results["dependencies"]
+    }
 
 # Node 2: AI Risk Assessment
 async def assess_risk_node(state: PipelineState) -> Dict[str, Any]:
@@ -324,7 +327,8 @@ async def run_security_pipeline(repo_path: str) -> Dict[str, Any]:
         "risk_assessment": {},
         "optimized_workflows": [],
         "remediations": [],
-        "health_scores": {"repo_score": 100, "pipeline_score": 100}
+        "health_scores": {"repo_score": 100, "pipeline_score": 100},
+        "dependencies": []
     }
     
     # Execute Graph
@@ -334,5 +338,6 @@ async def run_security_pipeline(repo_path: str) -> Dict[str, Any]:
         "risk_assessment": final_state.get("risk_assessment", {}),
         "optimized_workflows": final_state.get("optimized_workflows", []),
         "remediations": final_state.get("remediations", []),
-        "health_scores": final_state.get("health_scores", {"repo_score": 100, "pipeline_score": 100})
+        "health_scores": final_state.get("health_scores", {"repo_score": 100, "pipeline_score": 100}),
+        "dependencies": final_state.get("dependencies", [])
     }

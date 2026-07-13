@@ -61,6 +61,7 @@ async def query_osv(package_name, version, ecosystem):
 async def scan_dependencies(repo_path):
     findings = []
     dependencies = []
+    dependencies_list = []
     
     # Locate package files
     for root, dirs, files in os.walk(repo_path):
@@ -75,7 +76,11 @@ async def scan_dependencies(repo_path):
     # Query OSV for each dependency
     for dep in dependencies:
         result = await query_osv(dep["name"], dep["version"], dep["ecosystem"])
+        is_vuln = False
+        cve_id = None
+        
         if result and "vulns" in result:
+            is_vuln = True
             for vuln in result["vulns"]:
                 summary = vuln.get("summary", "No summary provided")
                 details = vuln.get("details", "")
@@ -84,6 +89,7 @@ async def scan_dependencies(repo_path):
                     cves = [a for a in vuln["aliases"] if a.startswith("CVE-")]
                     if cves:
                         cve = cves[0]
+                cve_id = cve
                 
                 # Propose fix version
                 fix_version = None
@@ -110,4 +116,13 @@ async def scan_dependencies(repo_path):
                     "description": f"{summary}\n\n### Details\n{details}" if details else summary,
                     "file": "requirements.txt" if dep["ecosystem"] == "PyPI" else "package.json"
                 })
-    return findings
+                
+        dependencies_list.append({
+            "name": dep["name"],
+            "version": dep["version"],
+            "ecosystem": dep["ecosystem"],
+            "is_vulnerable": is_vuln,
+            "cve": cve_id
+        })
+        
+    return findings, dependencies_list

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { 
   ShieldAlert, LogOut, Terminal, UploadCloud, Globe, RefreshCw, 
   CheckCircle2, XCircle, Info, ExternalLink, Calendar, ChevronRight, MessageSquare, GitBranch,
-  Trash2, FileText
+  Trash2, FileText, Layers
 } from 'lucide-react';
 import YAMLDiff from './YAMLDiff';
 import AIAssistantTab from './AIAssistantTab';
@@ -218,6 +218,17 @@ export default function Dashboard({ username, onLogout }) {
             >
               <GitBranch className="w-3.5 h-3.5" />
               Workflow Optimizer
+            </button>
+            <button
+              onClick={() => setActiveTab('dependencies')}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+                activeTab === 'dependencies'
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/10'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              Dependency Audit
             </button>
             <button
               onClick={() => setActiveTab('ai-assistant')}
@@ -609,6 +620,76 @@ export default function Dashboard({ username, onLogout }) {
                   findingsContext={activeScan?.findings || []} 
                   repoName={activeScan?.repo_name}
                 />
+              )}
+
+              {activeTab === 'dependencies' && (
+                <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl min-h-[500px]">
+                  <h2 className="text-base font-bold text-slate-100 mb-6 flex items-center gap-2 border-b border-slate-800 pb-3">
+                    <Layers className="w-5 h-5 text-indigo-400" />
+                    Software Composition Analysis (SCA) - Dependency Audit
+                  </h2>
+                  
+                  {activeScan?.dependencies && activeScan.dependencies.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="border-b border-slate-800 text-slate-400 font-semibold bg-slate-900/40">
+                            <th className="p-3">Package Name</th>
+                            <th className="p-3">Ecosystem</th>
+                            <th className="p-3">Scanned Version</th>
+                            <th className="p-3 text-center">Status</th>
+                            <th className="p-3">Advisory / CVE</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {activeScan.dependencies.map((dep, idx) => (
+                            <tr key={idx} className="border-b border-slate-800/60 hover:bg-slate-900/30 transition-colors">
+                              <td className="p-3 font-semibold text-slate-200">{dep.name}</td>
+                              <td className="p-3">
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                  dep.ecosystem === 'npm' ? 'bg-green-950/40 text-green-400 border border-green-900/30' : 'bg-blue-950/40 text-blue-400 border border-blue-900/30'
+                                }`}>
+                                  {dep.ecosystem}
+                                </span>
+                              </td>
+                              <td className="p-3 font-mono text-slate-400">{dep.version}</td>
+                              <td className="p-3 text-center">
+                                {dep.is_vulnerable ? (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-950/40 text-red-400 border border-red-900/30">
+                                    <XCircle className="w-3 h-3" />
+                                    Vulnerable
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/40 text-emerald-400 border border-emerald-900/30">
+                                    <CheckCircle2 className="w-3 h-3" />
+                                    Secure
+                                  </span>
+                                )}
+                              </td>
+                              <td className="p-3 text-slate-300">
+                                {dep.is_vulnerable ? (
+                                  <span className="text-red-400 font-mono font-semibold">{dep.cve || 'Alert'}</span>
+                                ) : (
+                                  <span className="text-slate-500 italic">No vulnerabilities</span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <div className="w-14 h-14 bg-slate-900 rounded-full flex items-center justify-center mb-4 border border-slate-800">
+                        <Layers className="w-6 h-6 text-indigo-400" />
+                      </div>
+                      <h3 className="font-bold text-sm text-slate-200">No Dependency Files Found</h3>
+                      <p className="text-xs text-slate-500 max-w-sm mt-1 leading-relaxed">
+                        SecureFlow AI could not locate package manifests (`requirements.txt` or `package.json`) in this scan. Ensure they are present at the root or nested folders.
+                      </p>
+                    </div>
+                  )}
+                </div>
               )}
 
             </div>
