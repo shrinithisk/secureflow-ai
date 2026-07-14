@@ -361,13 +361,25 @@ def apply_fix(scan_id: int, request: ApplyFixRequest, current_user: dict = Depen
                                 if put_resp.status_code in [200, 201]:
                                     print("GitHub Commit successfully created!")
                                 else:
-                                    print(f"Failed to create GitHub Commit: {put_resp.status_code} - {put_resp.text}")
+                                    conn.close()
+                                    raise HTTPException(
+                                        status_code=400,
+                                        detail=f"GitHub Commit failed ({put_resp.status_code}). Make sure your PAT has write permission for this repository."
+                                    )
                             else:
                                 print("No diff detected or original block not matching in current file content.")
                         else:
-                            print(f"Failed to fetch file from GitHub: {get_resp.status_code} - {get_resp.text}")
+                            conn.close()
+                            raise HTTPException(
+                                status_code=400,
+                                detail=f"Failed to fetch file from GitHub ({get_resp.status_code}). Make sure your PAT is valid and has access."
+                            )
+        except HTTPException:
+            raise
         except Exception as ex:
             print(f"Failed to apply patch directly to GitHub: {ex}")
+            conn.close()
+            raise HTTPException(status_code=500, detail=f"Failed to apply patch directly to GitHub: {str(ex)}")
             
     updated_report_json = json.dumps(report_data)
     

@@ -194,7 +194,7 @@ jobs:
     """
     
     try:
-        response = await asyncio.wait_for(llm.ainvoke(prompt), timeout=15.0)
+        response = await asyncio.wait_for(llm.ainvoke(prompt), timeout=30.0)
         content = response.content.strip()
         if content.startswith("```json"):
             content = content.replace("```json", "", 1).replace("```", "", 1).strip()
@@ -288,7 +288,7 @@ async def generate_remediations_node(state: PipelineState) -> Dict[str, Any]:
     """
     
     try:
-        response = await asyncio.wait_for(llm.ainvoke(prompt), timeout=15.0)
+        response = await asyncio.wait_for(llm.ainvoke(prompt), timeout=45.0)
         content = response.content.strip()
         if content.startswith("```json"):
             content = content.replace("```json", "", 1).replace("```", "", 1).strip()
