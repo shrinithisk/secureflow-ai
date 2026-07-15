@@ -104,15 +104,33 @@ async def scan_dependencies(repo_path):
                                         if "fixed" in e:
                                             fix_version = e["fixed"]
                 
+                fix_suggestion = None
+                original_block = None
+                patched_block = None
+                
+                if fix_version and fix_version != "Check advisory":
+                    if dep["ecosystem"] == "PyPI":
+                        fix_suggestion = f"Upgrade `{dep['name']}` from `{dep['version']}` to `{fix_version}` in requirements.txt"
+                        original_block = f"{dep['name']}=={dep['version']}"
+                        patched_block = f"{dep['name']}=={fix_version}"
+                    elif dep["ecosystem"] == "npm":
+                        fix_suggestion = f"Upgrade `{dep['name']}` from `{dep['version']}` to `{fix_version}` in package.json"
+                        # Support exact version string replacements
+                        original_block = f'"{dep["name"]}": "{dep["version"]}"'
+                        patched_block = f'"{dep["name"]}": "{fix_version}"'
+                
                 findings.append({
                     "id": vuln.get("id"),
                     "cve": cve,
                     "tool": "osv",
                     "type": f"CVE Vulnerability: {dep['name']}",
-                    "severity": "High",  # OSV API doesn't always contain a simple severity string, so we default to High
+                    "severity": "High",
                     "package": dep["name"],
                     "current_version": dep["version"],
                     "fixed_version": fix_version or "Check advisory",
+                    "fix_suggestion": fix_suggestion,
+                    "original_block": original_block,
+                    "patched_block": patched_block,
                     "description": f"{summary}\n\n### Details\n{details}" if details else summary,
                     "file": "requirements.txt" if dep["ecosystem"] == "PyPI" else "package.json"
                 })
