@@ -181,6 +181,9 @@ jobs:
     - Permission wildcards (e.g. write-all)
     - Shell injection risks in RUN statements.
     
+    IMPORTANT Pytest Guideline: If you write a step to execute 'pytest', make it robust against repositories that don't have unit tests (which causes pytest to exit with code 5, failing the build). Instead of a raw 'pytest' command, write a condition that only runs pytest if test files exist, for example:
+    'if find . -name "test_*.py" -o -name "*_test.py" | grep -q .; then pytest; else echo "No tests found, skipping"; fi' or use 'pytest || [ $? -eq 5 ]'.
+    
     Rewrite the workflows to be fully secure and optimized.
     
     Provide a JSON response containing:
