@@ -14,9 +14,17 @@ def run_semgrep(repo_path):
         return findings
         
     try:
-        # Run semgrep scan with JSON output
+        # Run semgrep scan with JSON output and exclude large directories to save memory
         result = subprocess.run(
-            ["semgrep", "scan", "--json", "--quiet", "--config=auto"],
+            [
+                "semgrep", "scan", "--json", "--quiet", "--config=auto",
+                "--exclude=node_modules",
+                "--exclude=.git",
+                "--exclude=venv",
+                "--exclude=env",
+                "--exclude=dist",
+                "--exclude=build"
+            ],
             cwd=repo_path,
             capture_output=True,
             text=True,

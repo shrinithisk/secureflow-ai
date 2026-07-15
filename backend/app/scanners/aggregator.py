@@ -33,21 +33,23 @@ def extract_line_content(repo_path, relative_file_path, line_number):
 async def run_all_scans(repo_path):
     print(f"Starting aggregate scan on: {repo_path}")
     
-    # Run the CPU-based CLI scanners in a thread pool so we don't block the async loop
+    # Run the CPU-based CLI scanners sequentially to avoid memory spike OOMs
     loop = asyncio.get_event_loop()
     
-    gitleaks_task = loop.run_in_executor(None, run_gitleaks, repo_path)
-    hadolint_task = loop.run_in_executor(None, run_hadolint, repo_path)
-    actionlint_task = loop.run_in_executor(None, run_actionlint, repo_path)
-    semgrep_task = loop.run_in_executor(None, run_semgrep, repo_path)
+    print("Executing Gitleaks scan...")
+    gitleaks_res = await loop.run_in_executor(None, run_gitleaks, repo_path)
     
-    # OSV scanner is already async
-    osv_task = scan_dependencies(repo_path)
+    print("Executing Hadolint scan...")
+    hadolint_res = await loop.run_in_executor(None, run_hadolint, repo_path)
     
-    # Wait for all scanners to complete
-    gitleaks_res, hadolint_res, actionlint_res, semgrep_res, osv_res_tuple = await asyncio.gather(
-        gitleaks_task, hadolint_task, actionlint_task, semgrep_task, osv_task
-    )
+    print("Executing Actionlint scan...")
+    actionlint_res = await loop.run_in_executor(None, run_actionlint, repo_path)
+    
+    print("Executing Semgrep scan...")
+    semgrep_res = await loop.run_in_executor(None, run_semgrep, repo_path)
+    
+    print("Executing OSV dependency scan...")
+    osv_res_tuple = await scan_dependencies(repo_path)
     
     osv_findings, osv_deps = osv_res_tuple
     
