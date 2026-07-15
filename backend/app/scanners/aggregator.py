@@ -80,6 +80,21 @@ async def run_all_scans(repo_path):
                     
             deduped_findings.append(f)
             
+    # Sort findings: Severity first (Critical -> High -> Medium -> Low), then group by File, then by Line
+    severity_order = {"Critical": 0, "High": 1, "Medium": 2, "Low": 3}
+    def get_sorting_key(item):
+        sev = item.get("severity", "Medium")
+        sev_val = severity_order.get(sev, 2)
+        file_path = item.get("file", "")
+        # Handle string or None lines safely
+        try:
+            line_val = int(item.get("line", 0))
+        except (ValueError, TypeError):
+            line_val = 0
+        return (sev_val, file_path, line_val)
+        
+    deduped_findings.sort(key=get_sorting_key)
+            
     print(f"Aggregation complete. Found {len(deduped_findings)} unique vulnerabilities.")
     return {
         "findings": deduped_findings,
