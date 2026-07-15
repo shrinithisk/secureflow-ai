@@ -1,8 +1,9 @@
-import React from 'react';
-import { Copy, Download, Check, AlertTriangle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Copy, Download, Check, AlertTriangle, GitPullRequest, RefreshCw } from 'lucide-react';
+import axios from 'axios';
 import MarkdownRenderer from './MarkdownRenderer';
 
-export default function YAMLDiff({ workflowData }) {
+export default function YAMLDiff({ workflowData, scanId, githubToken }) {
   if (!workflowData) return null;
 
   const {
@@ -11,6 +12,36 @@ export default function YAMLDiff({ workflowData }) {
     content = "",
     improvements = [],
   } = workflowData;
+
+  const [committing, setCommitting] = useState(false);
+  const [commitSuccess, setCommitSuccess] = useState(false);
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  const token = localStorage.getItem('token');
+  const headers = { Authorization: `Bearer ${token}` };
+
+  const handleCommitWorkflow = async () => {
+    if (!githubToken) {
+      alert("Please provide your GitHub Personal Access Token in the sidebar first!");
+      return;
+    }
+    setCommitting(true);
+    setCommitSuccess(false);
+    try {
+      await axios.post(
+        `${API_BASE_URL}/api/scans/${scanId}/commit-workflow`,
+        { github_token: githubToken },
+        { headers }
+      );
+      setCommitSuccess(true);
+      alert(`Secure workflow committed successfully to your GitHub repository under .github/workflows/${new_filename}!`);
+    } catch (err) {
+      console.error("Failed to commit workflow:", err);
+      alert("Error committing workflow: " + (err.response?.data?.detail || err.message));
+    } finally {
+      setCommitting(false);
+    }
+  };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(content);
@@ -41,20 +72,46 @@ export default function YAMLDiff({ workflowData }) {
             Optimized pipeline generator & security configurations
           </p>
         </div>
-        <div className="flex gap-2.5">
+        <div className="flex flex-wrap gap-2.5">
           <button
             onClick={handleCopy}
-            className="px-3.5 py-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl inline-flex items-center gap-1.5 active:scale-95 transition-all"
+            className="px-3.5 py-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl inline-flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer"
           >
             <Copy className="w-3.5 h-3.5" />
             Copy YAML
           </button>
           <button
             onClick={handleDownload}
-            className="px-3.5 py-2 text-xs bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl inline-flex items-center gap-1.5 active:scale-95 transition-all shadow-lg shadow-indigo-600/20"
+            className="px-3.5 py-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl inline-flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
             Download YAML
+          </button>
+          <button
+            onClick={handleCommitWorkflow}
+            disabled={committing}
+            className={`px-3.5 py-2 text-xs font-semibold rounded-xl inline-flex items-center gap-1.5 active:scale-95 transition-all shadow-lg cursor-pointer ${
+              commitSuccess
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20'
+                : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/20 disabled:opacity-50'
+            }`}
+          >
+            {committing ? (
+              <>
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                Deploying...
+              </>
+            ) : commitSuccess ? (
+              <>
+                <Check className="w-3.5 h-3.5" />
+                Deployed Successfully!
+              </>
+            ) : (
+              <>
+                <GitPullRequest className="w-3.5 h-3.5" />
+                Auto-Deploy to GitHub
+              </>
+            )}
           </button>
         </div>
       </div>

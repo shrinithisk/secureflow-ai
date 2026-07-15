@@ -705,7 +705,11 @@ export default function Dashboard({ username, onLogout }) {
                     AI GitHub Actions Workflow Optimizer
                   </h2>
                   {activeScan?.optimized_workflows && activeScan.optimized_workflows.length > 0 ? (
-                    <YAMLDiff workflowData={activeScan.optimized_workflows[0]} />
+                    <YAMLDiff 
+                      workflowData={activeScan.optimized_workflows[0]} 
+                      scanId={activeScan.id}
+                      githubToken={githubToken}
+                    />
                   ) : (
                     <div className="flex flex-col items-center justify-center text-center py-16">
                       <div className="w-14 h-14 bg-slate-900 rounded-full flex items-center justify-center mb-4 border border-slate-800">

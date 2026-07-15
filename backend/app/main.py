@@ -394,6 +394,100 @@ def apply_fix(scan_id: int, request: ApplyFixRequest, current_user: dict = Depen
     
     return report_data
 
+class CommitWorkflowRequest(BaseModel):
+    github_token: str
+
+@app.post("/api/scans/{scan_id}/commit-workflow")
+def commit_workflow(scan_id: int, request: CommitWorkflowRequest, current_user: dict = Depends(verify_token)):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT repo_url, report_json FROM scans WHERE id = ? AND user_id = ?
+    """, (scan_id, current_user["user_id"]))
+    row = cursor.fetchone()
+    
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Scan report not found")
+        
+    repo_url = row["repo_url"]
+    report_data = json.loads(row["report_json"])
+    optimized_workflows = report_data.get("optimized_workflows", [])
+    
+    if not optimized_workflows:
+        conn.close()
+        raise HTTPException(status_code=400, detail="No secure workflow found in scan report data to commit.")
+        
+    # Get details of the first secure workflow
+    workflow = optimized_workflows[0]
+    filename = workflow.get("new_filename", "secure-pipeline.yml")
+    content = workflow.get("content", "")
+    
+    if not content:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Secure workflow content is empty.")
+        
+    github_token = request.github_token
+    if not repo_url or "github.com" not in repo_url:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Direct commits are only supported for GitHub repository scans.")
+        
+    import base64
+    import httpx
+    
+    try:
+        url_clean = repo_url.rstrip("/")
+        parts = url_clean.split("github.com/")[-1].split("/")
+        if len(parts) >= 2:
+            owner = parts[0]
+            repo = parts[1].replace(".git", "")
+            
+            file_path = f".github/workflows/{filename}"
+            github_api_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}"
+            headers = {
+                "Authorization": f"token {github_token}",
+                "Accept": "application/vnd.github.v3+json"
+            }
+            
+            file_sha = None
+            with httpx.Client() as client:
+                # Check if the file already exists to get its blob SHA
+                get_resp = client.get(github_api_url, headers=headers, timeout=10.0)
+                if get_resp.status_code == 200:
+                    file_meta = get_resp.json()
+                    file_sha = file_meta.get("sha")
+                
+                # Base64 encode the new workflow content
+                encoded_content = base64.b64encode(content.encode("utf-8")).decode("utf-8")
+                
+                # Build commit payload
+                put_body = {
+                    "message": f"SecureFlow AI: Automated secure CI/CD pipeline deploy ({filename})",
+                    "content": encoded_content
+                }
+                if file_sha:
+                    put_body["sha"] = file_sha
+                    
+                # PUT request to commit/update
+                put_resp = client.put(github_api_url, headers=headers, json=put_body, timeout=10.0)
+                if put_resp.status_code in [200, 201]:
+                    conn.close()
+                    return {"status": "success", "message": f"Successfully committed secure workflow to .github/workflows/{filename}"}
+                else:
+                    conn.close()
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"GitHub API returned error: {put_resp.status_code}. Make sure your PAT has repository write permissions."
+                    )
+        else:
+            conn.close()
+            raise HTTPException(status_code=400, detail="Invalid GitHub repository URL structure.")
+    except HTTPException:
+        raise
+    except Exception as ex:
+        conn.close()
+        raise HTTPException(status_code=500, detail=f"Failed to commit workflow to GitHub: {str(ex)}")
+
 # ================= INTERACTIVE CHAT ROUTE =================
 
 def get_local_chatbot_response(question: str) -> str:
