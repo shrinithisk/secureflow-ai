@@ -1,5 +1,6 @@
 import React from 'react';
 import { Copy, Download, Check, AlertTriangle } from 'lucide-react';
+import MarkdownRenderer from './MarkdownRenderer';
 
 export default function YAMLDiff({ workflowData }) {
   if (!workflowData) return null;
@@ -68,7 +69,9 @@ export default function YAMLDiff({ workflowData }) {
             {improvements.map((imp, idx) => (
               <div key={idx} className="flex items-start gap-2.5 text-xs text-slate-200">
                 <Check className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
-                <span>{imp}</span>
+                <div className="flex-1 min-w-0">
+                  <MarkdownRenderer content={imp} className="text-slate-200" marginClass="my-0" />
+                </div>
               </div>
             ))}
           </div>
