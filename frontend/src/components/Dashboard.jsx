@@ -348,8 +348,8 @@ export default function Dashboard({ username, onLogout }) {
               <Globe className="w-4 h-4 text-indigo-400" />
               GitHub Auto-Fix Integration
             </h3>
-            <p className="text-[10px] text-slate-500 mb-3 leading-normal">
-              Provide a Personal Access Token (PAT) with `repo` write scope to automatically commit security patches back to GitHub.
+            <p className="text-[10px] text-slate-400 mb-3 leading-relaxed">
+              Provide a Personal Access Token (PAT) to commit patches. Fine-grained tokens require: click <strong>Edit</strong> ➔ <strong>Repository permissions</strong> ➔ enable <strong>Contents (Read/Write)</strong> and <strong>Workflows (Read/Write)</strong>.
             </p>
             <div className="space-y-2.5">
               <input
@@ -583,6 +583,28 @@ export default function Dashboard({ username, onLogout }) {
                         </button>
                       ))}
                     </div>
+                  </div>
+
+                  {/* SecureFlow Best-Practice Fix Order Banner */}
+                  <div className="bg-indigo-950/25 border border-indigo-900/45 rounded-xl p-4.5 mb-5 text-xs text-indigo-200">
+                    <h4 className="font-bold text-indigo-400 mb-2 flex items-center gap-1.5 uppercase tracking-wider text-[10px]">
+                      <Info className="w-4 h-4 text-indigo-400" />
+                      SecureFlow Guideline: Recommended Order of Fixes
+                    </h4>
+                    <p className="leading-relaxed mb-2 text-slate-400">
+                      To keep your repository clean and ensure all GitHub Actions builds pass:
+                    </p>
+                    <ol className="list-decimal pl-4.5 space-y-1.5 text-slate-300">
+                      <li>
+                        <strong>Step 1: Codebase Auto-Fixes</strong> — Click <strong>"Apply Auto-Fix"</strong> on the vulnerability cards below to patch security issues in your code files first.
+                      </li>
+                      <li>
+                        <strong>Step 2: Workflow Auto-Deploy</strong> — Go to the <strong>Workflow Optimizer</strong> tab and click <strong>"Auto-Deploy to GitHub"</strong> to add the secure build pipeline.
+                      </li>
+                      <li>
+                        <strong>Step 3: Clean up Old Workflows</strong> — Go to your repository on GitHub and delete any old, unused, or broken YAML files inside <code>.github/workflows/</code> to prevent them from triggering failed checks.
+                      </li>
+                    </ol>
                   </div>
 
                   {filteredFindings.length === 0 ? (
