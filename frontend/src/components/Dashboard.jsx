@@ -594,7 +594,7 @@ export default function Dashboard({ username, onLogout }) {
                     <p className="leading-relaxed mb-2 text-slate-400">
                       To keep your repository clean and ensure all GitHub Actions builds pass:
                     </p>
-                    <ol className="list-decimal pl-4.5 space-y-1.5 text-slate-300">
+                    <ol className="list-decimal pl-6 space-y-2 text-slate-300">
                       <li>
                         <strong>Step 1: Codebase Auto-Fixes</strong> — Click <strong>"Apply Auto-Fix"</strong> on the vulnerability cards below to patch security issues in your code files first.
                       </li>
