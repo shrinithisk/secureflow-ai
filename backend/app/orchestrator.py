@@ -115,9 +115,23 @@ async def assess_risk_node(state: PipelineState) -> Dict[str, Any]:
     try:
         response = await asyncio.wait_for(llm.ainvoke(prompt), timeout=30.0)
         content = response.content.strip()
-        # Clean markdown wrappers if present
-        if content.startswith("```json"):
-            content = content.replace("```json", "", 1).replace("```", "", 1).strip()
+        
+        # Robust JSON block extraction
+        import re
+        json_match = re.search(r'```json\s*(.*?)\s*```', content, re.DOTALL)
+        if json_match:
+            content = json_match.group(1).strip()
+        else:
+            json_match_alt = re.search(r'```\s*(.*?)\s*```', content, re.DOTALL)
+            if json_match_alt:
+                content = json_match_alt.group(1).strip()
+            else:
+                if content.startswith("```json"):
+                    content = content.replace("```json", "", 1)
+                if content.endswith("```"):
+                    content = content[:-3]
+                content = content.strip()
+                
         result = json.loads(content)
         return {
             "health_scores": {"repo_score": repo_score, "pipeline_score": 100},  # will be computed in next node
@@ -211,8 +225,23 @@ jobs:
     try:
         response = await asyncio.wait_for(llm.ainvoke(prompt), timeout=30.0)
         content = response.content.strip()
-        if content.startswith("```json"):
-            content = content.replace("```json", "", 1).replace("```", "", 1).strip()
+        
+        # Robust JSON block extraction
+        import re
+        json_match = re.search(r'```json\s*(.*?)\s*```', content, re.DOTALL)
+        if json_match:
+            content = json_match.group(1).strip()
+        else:
+            json_match_alt = re.search(r'```\s*(.*?)\s*```', content, re.DOTALL)
+            if json_match_alt:
+                content = json_match_alt.group(1).strip()
+            else:
+                if content.startswith("```json"):
+                    content = content.replace("```json", "", 1)
+                if content.endswith("```"):
+                    content = content[:-3]
+                content = content.strip()
+                
         result = json.loads(content)
         # Ensure it is a list
         workflow_results = result if isinstance(result, list) else [result]
