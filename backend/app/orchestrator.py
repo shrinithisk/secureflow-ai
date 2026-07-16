@@ -113,7 +113,7 @@ async def assess_risk_node(state: PipelineState) -> Dict[str, Any]:
     """
     
     try:
-        response = await asyncio.wait_for(llm.ainvoke(prompt), timeout=15.0)
+        response = await asyncio.wait_for(llm.ainvoke(prompt), timeout=30.0)
         content = response.content.strip()
         # Clean markdown wrappers if present
         if content.startswith("```json"):

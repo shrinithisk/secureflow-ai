@@ -98,7 +98,7 @@ async def scan_dependencies(repo_path):
                         if affected.get("package", {}).get("name") == dep["name"]:
                             ranges = affected.get("ranges", [])
                             for r in ranges:
-                                if r.get("type") == "SEMVER":
+                                if r.get("type") in ("SEMVER", "ECOSYSTEM"):
                                     events = r.get("events", [])
                                     for e in events:
                                         if "fixed" in e:
