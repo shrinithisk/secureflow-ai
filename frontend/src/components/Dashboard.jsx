@@ -709,10 +709,24 @@ export default function Dashboard({ username, onLogout }) {
                               </div>
                               <div className="mt-3 border-t border-slate-800/40 pt-2.5">
                                 {finding.fixed ? (
-                                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-950/40 border border-emerald-900/40 text-emerald-400 rounded-lg text-xs font-bold w-full justify-center">
-                                    <CheckCircle2 className="w-4 h-4" />
-                                    Fix Applied
-                                  </span>
+                                  <>
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-950/40 border border-emerald-900/40 text-emerald-400 rounded-lg text-xs font-bold w-full justify-center mb-2.5 animate-pulse">
+                                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                                      Fix Applied
+                                    </span>
+                                    <div className="bg-emerald-950/15 border border-emerald-900/30 p-2.5 rounded-lg text-[10px] text-emerald-300 leading-normal">
+                                      <span className="font-bold block text-emerald-400 mb-1 uppercase tracking-wider text-[9px]">Fix Details:</span>
+                                      <p className="mb-1.5 text-slate-400">Patched in codebase and committed to GitHub:</p>
+                                      <div className="bg-slate-950/60 p-2 rounded font-mono text-[9px] text-slate-400 border border-emerald-950/50 mb-1.5 break-all">
+                                        <span className="text-red-400/90 font-bold">- {finding.original_block}</span>
+                                        <div className="h-px bg-slate-800/20 my-1" />
+                                        <span className="text-emerald-400 font-bold">+ {finding.patched_block}</span>
+                                      </div>
+                                      <p className="text-slate-400 leading-relaxed italic">
+                                        {finding.fix_suggestion || "Code hardened to resolve vulnerability."}
+                                      </p>
+                                    </div>
+                                  </>
                                 ) : (
                                   <button
                                     onClick={() => {
