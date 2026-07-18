@@ -108,6 +108,18 @@ export default function Dashboard({ username, onLogout }) {
     setLoading(true);
     setError('');
     setStatusMsg('Cloning repository and initializing state graph...');
+    
+    const statusInterval = setInterval(async () => {
+      try {
+        const resp = await axios.get(`${API_BASE_URL}/api/scans/active-status`);
+        if (resp.data.status && resp.data.status !== 'Idle') {
+          setStatusMsg(resp.data.status);
+        }
+      } catch (err) {
+        // ignore errors
+      }
+    }, 1000);
+
     try {
       await axios.post(`${API_BASE_URL}/api/scan/url`, 
         { repo_url: repoUrl.trim() }, 
@@ -119,6 +131,7 @@ export default function Dashboard({ username, onLogout }) {
       const errMsg = err.response?.data?.detail || err.response?.data?.message || err.response?.data || err.message || "Scanning failed. Ensure the URL is public and valid.";
       setError(typeof errMsg === 'object' ? JSON.stringify(errMsg) : String(errMsg));
     } finally {
+      clearInterval(statusInterval);
       setLoading(false);
       setStatusMsg('');
     }
@@ -132,6 +145,17 @@ export default function Dashboard({ username, onLogout }) {
     setStatusMsg('Extracting ZIP package and executing local linters...');
     const formData = new FormData();
     formData.append('file', zipFile);
+
+    const statusInterval = setInterval(async () => {
+      try {
+        const resp = await axios.get(`${API_BASE_URL}/api/scans/active-status`);
+        if (resp.data.status && resp.data.status !== 'Idle') {
+          setStatusMsg(resp.data.status);
+        }
+      } catch (err) {
+        // ignore errors
+      }
+    }, 1000);
 
     try {
       await axios.post(`${API_BASE_URL}/api/scan/zip`, formData, {
@@ -147,6 +171,7 @@ export default function Dashboard({ username, onLogout }) {
       const errMsg = err.response?.data?.detail || err.response?.data?.message || err.response?.data || err.message || "Scanning ZIP failed. Ensure it is a valid directory structure.";
       setError(typeof errMsg === 'object' ? JSON.stringify(errMsg) : String(errMsg));
     } finally {
+      clearInterval(statusInterval);
       setLoading(false);
       setStatusMsg('');
     }

@@ -30,24 +30,40 @@ def extract_line_content(repo_path, relative_file_path, line_number):
         print(f"Error extracting line snippet: {e}")
     return None
 
+# Active Scanner Status Tracking State
+current_scanner_status = "Idle"
+
+def get_current_status():
+    global current_scanner_status
+    return current_scanner_status
+
+def set_current_status(status):
+    global current_scanner_status
+    current_scanner_status = status
+
 async def run_all_scans(repo_path):
     print(f"Starting aggregate scan on: {repo_path}")
     
     # Run the CPU-based CLI scanners sequentially to avoid memory spike OOMs
     loop = asyncio.get_event_loop()
     
+    set_current_status("Scanning for secrets with Gitleaks...")
     print("Executing Gitleaks scan...")
     gitleaks_res = await loop.run_in_executor(None, run_gitleaks, repo_path)
     
+    set_current_status("Analyzing Dockerfiles with Hadolint...")
     print("Executing Hadolint scan...")
     hadolint_res = await loop.run_in_executor(None, run_hadolint, repo_path)
     
+    set_current_status("Analyzing GitHub workflows with Actionlint...")
     print("Executing Actionlint scan...")
     actionlint_res = await loop.run_in_executor(None, run_actionlint, repo_path)
     
+    set_current_status("Scanning codebase with Semgrep static analysis...")
     print("Executing Semgrep scan...")
     semgrep_res = await loop.run_in_executor(None, run_semgrep, repo_path)
     
+    set_current_status("Auditing dependencies with OSV Scanner...")
     print("Executing OSV dependency scan...")
     osv_res_tuple = await scan_dependencies(repo_path)
     

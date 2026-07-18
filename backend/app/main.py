@@ -11,7 +11,7 @@ import git
 
 from app.database import init_db, get_db_connection
 from app.auth import get_password_hash, verify_password, create_access_token, verify_token
-from app.scanners.aggregator import get_scanners_status
+from app.scanners.aggregator import get_scanners_status, get_current_status
 from app.orchestrator import run_security_pipeline, get_llm, get_chatbot_llm
 
 app = FastAPI(title="SecureFlow AI API", version="1.0.0")
@@ -95,6 +95,10 @@ def me(current_user: dict = Depends(verify_token)):
 @app.get("/api/scanners/status")
 def scanners_status():
     return get_scanners_status()
+
+@app.get("/api/scans/active-status")
+def active_scan_status():
+    return {"status": get_current_status()}
 
 # ================= CODE SCANNING ROUTES =================
 

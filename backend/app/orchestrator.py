@@ -5,7 +5,7 @@ from typing import List, Dict, Any
 from typing_extensions import TypedDict
 from langgraph.graph import StateGraph, START, END
 from langchain_google_genai import ChatGoogleGenerativeAI
-from app.scanners.aggregator import run_all_scans, get_scanners_status
+from app.scanners.aggregator import run_all_scans, get_scanners_status, set_current_status
 
 # Load local .env variables manually
 backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -73,6 +73,7 @@ async def scan_repo_node(state: PipelineState) -> Dict[str, Any]:
 
 # Node 2: AI Risk Assessment
 async def assess_risk_node(state: PipelineState) -> Dict[str, Any]:
+    set_current_status("Generating AI threat scenario & risk profile...")
     findings = state["findings"]
     llm = get_llm()
     
@@ -149,6 +150,7 @@ async def assess_risk_node(state: PipelineState) -> Dict[str, Any]:
 
 # Node 3: AI GitHub Workflow Engineer (USP)
 async def engineer_workflows_node(state: PipelineState) -> Dict[str, Any]:
+    set_current_status("Optimizing GitHub Action workflows with AI...")
     repo_path = state["repo_path"]
     findings = state["findings"]
     health_scores = state.get("health_scores", {"repo_score": 100, "pipeline_score": 100})
@@ -304,6 +306,7 @@ jobs:
 
 # Node 4: AI Remediation & Patching
 async def generate_remediations_node(state: PipelineState) -> Dict[str, Any]:
+    set_current_status("Generating AI vulnerability patch suggestions...")
     findings = state["findings"]
     llm = get_llm()
     
@@ -376,12 +379,15 @@ async def run_security_pipeline(repo_path: str) -> Dict[str, Any]:
     }
     
     # Execute Graph
-    final_state = await workflow_graph.ainvoke(initial_state)
-    return {
-        "findings": final_state.get("findings", []),
-        "risk_assessment": final_state.get("risk_assessment", {}),
-        "optimized_workflows": final_state.get("optimized_workflows", []),
-        "remediations": final_state.get("remediations", []),
-        "health_scores": final_state.get("health_scores", {"repo_score": 100, "pipeline_score": 100}),
-        "dependencies": final_state.get("dependencies", [])
-    }
+    try:
+        final_state = await workflow_graph.ainvoke(initial_state)
+        return {
+            "findings": final_state.get("findings", []),
+            "risk_assessment": final_state.get("risk_assessment", {}),
+            "optimized_workflows": final_state.get("optimized_workflows", []),
+            "remediations": final_state.get("remediations", []),
+            "health_scores": final_state.get("health_scores", {"repo_score": 100, "pipeline_score": 100}),
+            "dependencies": final_state.get("dependencies", [])
+        }
+    finally:
+        set_current_status("Idle")
