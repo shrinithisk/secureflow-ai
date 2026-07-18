@@ -193,6 +193,10 @@ export default function Dashboard({ username, onLogout }) {
 
   const applySecurityFix = async (originalIndex) => {
     if (!activeScan) return;
+    if (!githubToken || !githubToken.trim()) {
+      alert("Please provide your GitHub Personal Access Token in the sidebar first to commit codebase fixes!");
+      return;
+    }
     setApplyingFix(originalIndex);
     try {
       const response = await axios.post(
