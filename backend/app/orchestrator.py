@@ -209,12 +209,12 @@ jobs:
     
     VERIFIED GITHUB ACTION COMMIT SHA LOOKUP TABLE:
     If you need to pin any of the following standard GitHub Actions to a 40-character commit SHA, you MUST use these exact verified SHAs. Never make up or guess any other SHA:
-    - actions/checkout@v4 ➔ actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-    - actions/setup-python@v5 ➔ actions/setup-python@0b93645e9fbca3061306a771c91aa8929e5a3297
-    - actions/setup-node@v4 ➔ actions/setup-node@08414547f9db0dbde17d2550473650d99905c114
-    - actions/cache@v4 ➔ actions/cache@d930a84f245250243f350da006b586040a4c40b1
-    - zricethezav/gitleaks-action@v2 or gitleaks/gitleaks-action@v2 ➔ gitleaks/gitleaks-action@30b4fbc2363dbb28d21c9024f8488b7dc37e0e7a
-    - semgrep/semgrep-action@v1 or returntocorp/semgrep-action@v1 ➔ semgrep/semgrep-action@713e2d6b38c2634e320f719460d0066f108d8102
+    - actions/checkout@v4 ➔ actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+    - actions/setup-python@v5 ➔ actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+    - actions/setup-node@v4 ➔ actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+    - actions/cache@v4 ➔ actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+    - zricethezav/gitleaks-action@v2 or gitleaks/gitleaks-action@v2 ➔ gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7
+    - semgrep/semgrep-action@v1 or returntocorp/semgrep-action@v1 ➔ semgrep/semgrep-action@713efdd345f3035192eaa63f56867b88e63e4e5d
 
     CRITICAL SAFETY RULE: Never hallucinate or invent a 40-character commit SHA for any action not listed in the table above. If you do not have the verified SHA for an action, do not replace it with a SHA; keep the version tag (e.g. @v2 or @v4) or use a precise minor release tag (e.g. @v4.1.2) instead.
 
@@ -344,12 +344,12 @@ async def generate_remediations_node(state: PipelineState) -> Dict[str, Any]:
     
     VERIFIED GITHUB ACTION COMMIT SHA LOOKUP TABLE:
     If you need to pin any of the following standard GitHub Actions to a 40-character commit SHA, you MUST use these exact verified SHAs. Never make up or guess any other SHA:
-    - actions/checkout@v4 ➔ actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-    - actions/setup-python@v5 ➔ actions/setup-python@0b93645e9fbca3061306a771c91aa8929e5a3297
-    - actions/setup-node@v4 ➔ actions/setup-node@08414547f9db0dbde17d2550473650d99905c114
-    - actions/cache@v4 ➔ actions/cache@d930a84f245250243f350da006b586040a4c40b1
-    - zricethezav/gitleaks-action@v2 or gitleaks/gitleaks-action@v2 ➔ gitleaks/gitleaks-action@30b4fbc2363dbb28d21c9024f8488b7dc37e0e7a
-    - semgrep/semgrep-action@v1 or returntocorp/semgrep-action@v1 ➔ semgrep/semgrep-action@713e2d6b38c2634e320f719460d0066f108d8102
+    - actions/checkout@v4 ➔ actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+    - actions/setup-python@v5 ➔ actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+    - actions/setup-node@v4 ➔ actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+    - actions/cache@v4 ➔ actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+    - zricethezav/gitleaks-action@v2 or gitleaks/gitleaks-action@v2 ➔ gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7
+    - semgrep/semgrep-action@v1 or returntocorp/semgrep-action@v1 ➔ semgrep/semgrep-action@713efdd345f3035192eaa63f56867b88e63e4e5d
 
     CRITICAL SAFETY RULES:
     1. Never hallucinate or invent a 40-character commit SHA for any action not listed in the table above. If you do not have the verified SHA for an action, do not replace it with a SHA; keep the version tag (e.g. @v2 or @v4) or use a precise minor release tag (e.g. @v4.1.2) instead.
