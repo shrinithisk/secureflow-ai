@@ -224,6 +224,7 @@ jobs:
     IMPORTANT Build Safety Guideline: Always append 'continue-on-error: true' to any project-specific dependency installation steps (like 'pip install -r requirements.txt' or 'npm install') and unit test steps (like 'npm test' or 'pytest'). This ensures that local package variations or missing tests do not fail the overall GitHub Actions workflow run, allowing security scans (like Semgrep and Gitleaks) to run successfully and display a green success checkmark on GitHub.
     
     Rewrite the workflows to be fully secure and optimized.
+    CRITICAL RULE FOR ALREADY SECURE WORKFLOWS: If the existing workflows already meet all secure criteria (e.g. standard actions are pinned to verified SHAs, continue-on-error is set for dependency install/tests, and least privilege permissions are defined), DO NOT rewrite them. In this case, set "improvements" to an empty list [], keep the original filename, keep the original content as the new content, and set "pipeline_score" to 100.
     
     Provide a JSON response containing:
     1. "original_filename": name of the workflow analyzed (or "None")

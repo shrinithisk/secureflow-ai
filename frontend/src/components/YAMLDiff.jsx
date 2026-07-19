@@ -115,43 +115,58 @@ export default function YAMLDiff({ workflowData, scanId, githubToken }) {
           </button>
         </div>
       </div>
-
-      {/* Improvements List */}
-      <div className="mb-6">
-        <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
-          Optimization Highlights:
-        </h4>
-        {improvements.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 bg-slate-900/40 border border-slate-800/60 p-4 rounded-xl">
-            {improvements.map((imp, idx) => (
-              <div key={idx} className="flex items-start gap-2.5 text-xs text-slate-200">
-                <Check className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
-                <div className="flex-1 min-w-0">
-                  <MarkdownRenderer content={imp} className="text-slate-200" marginClass="my-0" />
-                </div>
-              </div>
-            ))}
+      {improvements.length === 0 && original_filename !== "None" ? (
+        <div className="bg-emerald-950/15 border border-emerald-900/30 rounded-2xl p-8 text-center flex flex-col items-center gap-4 my-2">
+          <div className="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/5 animate-pulse">
+            <Check className="w-8 h-8" />
           </div>
-        ) : (
-          <p className="text-xs text-slate-500 italic bg-slate-900/40 p-4 rounded-xl border border-slate-800/60">
-            No workflow adjustments needed or secure YAML generated from scratch.
-          </p>
-        )}
-      </div>
-
-      {/* Code Editor Panel */}
-      <div className="flex flex-col">
-        {/* Generated secure YAML */}
-        <div className="bg-green-950/20 border border-green-900/40 rounded-t-xl px-4 py-2 text-xs font-semibold text-green-400 uppercase flex justify-between items-center">
-          <span>Secure Workflow ({new_filename})</span>
-          <span className="px-2 py-0.5 bg-green-500/20 text-[10px] text-green-300 rounded-full font-sans uppercase">
-            Secure
-          </span>
+          <div>
+            <h3 className="text-base font-bold text-emerald-400">CI/CD Workflows Fully Hardened!</h3>
+            <p className="text-xs text-slate-400 mt-1.5 max-w-lg mx-auto leading-relaxed">
+              We analyzed your repository's active GitHub Actions workflows. They are already fully optimized, use secure 40-character commit SHAs, run with least-privilege permissions, and follow DevSecOps safety guidelines. No adjustments are needed!
+            </p>
+          </div>
         </div>
-        <pre className="flex-1 bg-slate-950 p-4 rounded-b-xl border-x border-b border-green-900/20 font-mono text-xs text-slate-200 overflow-auto min-h-[300px] max-h-[550px]">
-          <code>{content || "# Scaffolding secure YAML workflow..."}</code>
-        </pre>
-      </div>
+      ) : (
+        <>
+          {/* Improvements List */}
+          <div className="mb-6">
+            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+              Optimization Highlights:
+            </h4>
+            {improvements.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 bg-slate-900/40 border border-slate-800/60 p-4 rounded-xl">
+                {improvements.map((imp, idx) => (
+                  <div key={idx} className="flex items-start gap-2.5 text-xs text-slate-200">
+                    <Check className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <MarkdownRenderer content={imp} className="text-slate-200" marginClass="my-0" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-slate-500 italic bg-slate-900/40 p-4 rounded-xl border border-slate-800/60">
+                No workflow adjustments needed or secure YAML generated from scratch.
+              </p>
+            )}
+          </div>
+
+          {/* Code Editor Panel */}
+          <div className="flex flex-col">
+            {/* Generated secure YAML */}
+            <div className="bg-green-950/20 border border-green-900/40 rounded-t-xl px-4 py-2 text-xs font-semibold text-green-400 uppercase flex justify-between items-center">
+              <span>Secure Workflow ({new_filename})</span>
+              <span className="px-2 py-0.5 bg-green-500/20 text-[10px] text-green-300 rounded-full font-sans uppercase">
+                Secure
+              </span>
+            </div>
+            <pre className="flex-1 bg-slate-950 p-4 rounded-b-xl border-x border-b border-green-900/20 font-mono text-xs text-slate-200 overflow-auto min-h-[300px] max-h-[550px]">
+              <code>{content || "# Scaffolding secure YAML workflow..."}</code>
+            </pre>
+          </div>
+        </>
+      )}
     </div>
   );
 }
