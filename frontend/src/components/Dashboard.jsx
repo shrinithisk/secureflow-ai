@@ -191,6 +191,18 @@ export default function Dashboard({ username, onLogout }) {
     }
   };
 
+  const handleClearAllScans = async () => {
+    if (!window.confirm("Are you sure you want to clear all scan history and temp files? This cannot be undone.")) return;
+    try {
+      await axios.delete(`${API_BASE_URL}/api/scans/clear-all`, { headers });
+      setHistory([]);
+      setActiveScan(null);
+    } catch (err) {
+      console.error("Failed to clear all scans:", err);
+      alert("Failed to clear all scans: " + (err.response?.data?.detail || err.message));
+    }
+  };
+
   const applySecurityFix = async (originalIndex) => {
     if (!activeScan) return;
     if (!githubToken || !githubToken.trim()) {
@@ -431,9 +443,19 @@ export default function Dashboard({ username, onLogout }) {
 
           {/* History Lists */}
           <div className="bg-[#0f172a] border border-slate-800/80 rounded-2xl p-5 shadow-xl">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-4">
-              Audit Logs
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
+                Audit Logs
+              </h3>
+              {history.length > 0 && (
+                <button
+                  onClick={handleClearAllScans}
+                  className="text-[10px] text-red-400 hover:text-red-300 font-bold hover:underline transition-colors focus:outline-none"
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
             {loadingHistory ? (
               <p className="text-xs text-slate-500">Loading audit history...</p>
             ) : history.length === 0 ? (

@@ -246,6 +246,34 @@ def delete_scan(scan_id: int, current_user: dict = Depends(verify_token)):
     conn.close()
     return {"message": "Scan report deleted successfully"}
 
+@app.delete("/api/scans/clear-all")
+def clear_all_scans(current_user: dict = Depends(verify_token)):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM scans WHERE user_id = ?", (current_user["user_id"],))
+        conn.commit()
+        
+        # Physically delete temporary directories
+        for folder in [CLONES_DIR, UPLOADS_DIR]:
+            if os.path.exists(folder):
+                for item in os.listdir(folder):
+                    item_path = os.path.join(folder, item)
+                    try:
+                        if os.path.isdir(item_path):
+                            shutil.rmtree(item_path)
+                        else:
+                            os.remove(item_path)
+                    except Exception as err:
+                        print(f"Failed to delete {item_path}: {err}")
+                        
+        return {"message": "All scan history and temporary files cleared successfully!"}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to clear scans: {str(e)}")
+    finally:
+        conn.close()
+
 class ApplyFixRequest(BaseModel):
     finding_index: int
     github_token: Optional[str] = None
