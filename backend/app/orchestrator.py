@@ -73,7 +73,7 @@ async def scan_repo_node(state: PipelineState) -> Dict[str, Any]:
 
 # Node 2: AI Risk Assessment
 async def assess_risk_node(state: PipelineState) -> Dict[str, Any]:
-    set_current_status("Generating AI threat scenario & risk profile...")
+    set_current_status("Gemini AI: Processing findings to construct attacker exploitation threat models...")
     findings = state["findings"]
     llm = get_llm()
     
@@ -150,7 +150,7 @@ async def assess_risk_node(state: PipelineState) -> Dict[str, Any]:
 
 # Node 3: AI GitHub Workflow Engineer (USP)
 async def engineer_workflows_node(state: PipelineState) -> Dict[str, Any]:
-    set_current_status("Optimizing GitHub Action workflows with AI...")
+    set_current_status("Gemini AI: Engineering hardened, least-privilege CI/CD workflow configurations...")
     repo_path = state["repo_path"]
     findings = state["findings"]
     health_scores = state.get("health_scores", {"repo_score": 100, "pipeline_score": 100})
@@ -318,7 +318,7 @@ jobs:
 
 # Node 4: AI Remediation & Patching
 async def generate_remediations_node(state: PipelineState) -> Dict[str, Any]:
-    set_current_status("Generating AI vulnerability patch suggestions...")
+    set_current_status("Gemini AI: Synthesizing automated codebase code patches and fix details...")
     findings = state["findings"]
     llm = get_llm()
     

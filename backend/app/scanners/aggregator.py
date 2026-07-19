@@ -47,23 +47,23 @@ async def run_all_scans(repo_path):
     # Run the CPU-based CLI scanners sequentially to avoid memory spike OOMs
     loop = asyncio.get_event_loop()
     
-    set_current_status("Scanning for secrets with Gitleaks...")
+    set_current_status("Gitleaks: Auditing Git commit history and files for leaked secrets...")
     print("Executing Gitleaks scan...")
     gitleaks_res = await loop.run_in_executor(None, run_gitleaks, repo_path)
     
-    set_current_status("Analyzing Dockerfiles with Hadolint...")
+    set_current_status("Hadolint: Verifying Dockerfile container base image instructions...")
     print("Executing Hadolint scan...")
     hadolint_res = await loop.run_in_executor(None, run_hadolint, repo_path)
     
-    set_current_status("Analyzing GitHub workflows with Actionlint...")
+    set_current_status("Actionlint: Validating GitHub Actions workflows in .github/workflows/...")
     print("Executing Actionlint scan...")
     actionlint_res = await loop.run_in_executor(None, run_actionlint, repo_path)
     
-    set_current_status("Scanning codebase with Semgrep static analysis...")
+    set_current_status("Semgrep: Analyzing Python/JS code modules for application vulnerabilities...")
     print("Executing Semgrep scan...")
     semgrep_res = await loop.run_in_executor(None, run_semgrep, repo_path)
     
-    set_current_status("Auditing dependencies with OSV Scanner...")
+    set_current_status("OSV Scanner: Auditing external package dependencies in requirements.txt / package.json...")
     print("Executing OSV dependency scan...")
     osv_res_tuple = await scan_dependencies(repo_path)
     
