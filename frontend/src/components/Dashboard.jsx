@@ -26,6 +26,7 @@ export default function Dashboard({ username, onLogout }) {
   const [loading, setLoading] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
+  const [progressPercent, setProgressPercent] = useState(10);
   const [error, setError] = useState('');
   const [severityFilter, setSeverityFilter] = useState('All');
   const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, workflows, ai-assistant
@@ -108,12 +109,16 @@ export default function Dashboard({ username, onLogout }) {
     setLoading(true);
     setError('');
     setStatusMsg('Cloning repository and initializing state graph...');
+    setProgressPercent(10);
     
     const statusInterval = setInterval(async () => {
       try {
         const resp = await axios.get(`${API_BASE_URL}/api/scans/active-status`);
         if (resp.data.status && resp.data.status !== 'Idle') {
           setStatusMsg(resp.data.status);
+        }
+        if (resp.data.percentage) {
+          setProgressPercent(resp.data.percentage);
         }
       } catch (err) {
         // ignore errors
@@ -143,6 +148,7 @@ export default function Dashboard({ username, onLogout }) {
     setLoading(true);
     setError('');
     setStatusMsg('Extracting ZIP package and executing local linters...');
+    setProgressPercent(10);
     const formData = new FormData();
     formData.append('file', zipFile);
 
@@ -151,6 +157,9 @@ export default function Dashboard({ username, onLogout }) {
         const resp = await axios.get(`${API_BASE_URL}/api/scans/active-status`);
         if (resp.data.status && resp.data.status !== 'Idle') {
           setStatusMsg(resp.data.status);
+        }
+        if (resp.data.percentage) {
+          setProgressPercent(resp.data.percentage);
         }
       } catch (err) {
         // ignore errors
@@ -506,9 +515,21 @@ export default function Dashboard({ username, onLogout }) {
           
           {/* Scan Loader State */}
           {loading && (
-            <div className="bg-indigo-600/5 border border-indigo-500/20 rounded-2xl p-6 flex flex-col items-center justify-center gap-3">
+            <div className="bg-indigo-600/5 border border-indigo-500/20 rounded-2xl p-6 flex flex-col items-center justify-center gap-4">
               <RefreshCw className="w-8 h-8 text-indigo-500 animate-spin" />
-              <p className="text-sm font-semibold text-indigo-300">Scanning in progress</p>
+              <div className="text-center">
+                <p className="text-sm font-semibold text-indigo-300">Scanning in progress</p>
+                <p className="text-[10px] text-indigo-400 font-mono mt-0.5">Progress: {progressPercent}%</p>
+              </div>
+              
+              {/* Progress Bar Container */}
+              <div className="w-full max-w-md bg-slate-800/80 rounded-full h-1.5 overflow-hidden border border-slate-700/30">
+                <div 
+                  className="bg-indigo-500 h-1.5 rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+
               <p className="text-xs text-slate-400 italic text-center max-w-md">{statusMsg || "Triggering orchestrator pipeline..."}</p>
             </div>
           )}
