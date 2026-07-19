@@ -207,6 +207,17 @@ jobs:
     - Permission wildcards (e.g. write-all)
     - Shell injection risks in RUN statements.
     
+    VERIFIED GITHUB ACTION COMMIT SHA LOOKUP TABLE:
+    If you need to pin any of the following standard GitHub Actions to a 40-character commit SHA, you MUST use these exact verified SHAs. Never make up or guess any other SHA:
+    - actions/checkout@v4 ➔ actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+    - actions/setup-python@v5 ➔ actions/setup-python@0b93645e9fbca3061306a771c91aa8929e5a3297
+    - actions/setup-node@v4 ➔ actions/setup-node@08414547f9db0dbde17d2550473650d99905c114
+    - actions/cache@v4 ➔ actions/cache@d930a84f245250243f350da006b586040a4c40b1
+    - zricethezav/gitleaks-action@v2 or gitleaks/gitleaks-action@v2 ➔ gitleaks/gitleaks-action@30b4fbc2363dbb28d21c9024f8488b7dc37e0e7a
+    - semgrep/semgrep-action@v1 or returntocorp/semgrep-action@v1 ➔ semgrep/semgrep-action@713e2d6b38c2634e320f719460d0066f108d8102
+
+    CRITICAL SAFETY RULE: Never hallucinate or invent a 40-character commit SHA for any action not listed in the table above. If you do not have the verified SHA for an action, do not replace it with a SHA; keep the version tag (e.g. @v2 or @v4) or use a precise minor release tag (e.g. @v4.1.2) instead.
+
     IMPORTANT Pytest Guideline: If you write a step to execute 'pytest', make it robust against repositories that don't have unit tests (which causes pytest to exit with code 5, failing the build). Instead of a raw 'pytest' command, write a condition that only runs pytest if test files exist, for example:
     'if find . -name "test_*.py" -o -name "*_test.py" | grep -q .; then pytest; else echo "No tests found, skipping"; fi' or use 'pytest || [ $? -eq 5 ]'.
     
@@ -330,6 +341,20 @@ async def generate_remediations_node(state: PipelineState) -> Dict[str, Any]:
     2. "original": The insecure block.
     3. "patched": The replacement/corrected block.
     4. "explanation": Why this change is secure.
+    
+    VERIFIED GITHUB ACTION COMMIT SHA LOOKUP TABLE:
+    If you need to pin any of the following standard GitHub Actions to a 40-character commit SHA, you MUST use these exact verified SHAs. Never make up or guess any other SHA:
+    - actions/checkout@v4 ➔ actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+    - actions/setup-python@v5 ➔ actions/setup-python@0b93645e9fbca3061306a771c91aa8929e5a3297
+    - actions/setup-node@v4 ➔ actions/setup-node@08414547f9db0dbde17d2550473650d99905c114
+    - actions/cache@v4 ➔ actions/cache@d930a84f245250243f350da006b586040a4c40b1
+    - zricethezav/gitleaks-action@v2 or gitleaks/gitleaks-action@v2 ➔ gitleaks/gitleaks-action@30b4fbc2363dbb28d21c9024f8488b7dc37e0e7a
+    - semgrep/semgrep-action@v1 or returntocorp/semgrep-action@v1 ➔ semgrep/semgrep-action@713e2d6b38c2634e320f719460d0066f108d8102
+
+    CRITICAL SAFETY RULES:
+    1. Never hallucinate or invent a 40-character commit SHA for any action not listed in the table above. If you do not have the verified SHA for an action, do not replace it with a SHA; keep the version tag (e.g. @v2 or @v4) or use a precise minor release tag (e.g. @v4.1.2) instead.
+    2. Never hallucinate digest hashes for Docker images. Pin to a stable tag (e.g. node:20-alpine or python:3.11-slim) instead.
+    3. Ensure that you suggest ONLY correct, minimal, and fully functioning patches. Review the code syntax carefully to avoid breaking the file layout.
     
     Return a JSON list of these recommendations. Return ONLY valid JSON.
     """
