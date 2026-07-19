@@ -311,23 +311,28 @@ def apply_fix(scan_id: int, request: ApplyFixRequest, current_user: dict = Depen
                 finding = findings[idx]
                 file_path = finding.get("file")
                 
-                # Retrieve original and patched code blocks from remediations
-                remediations = report_data.get("remediations", [])
-                original_block = None
-                patched_block = None
+                # Retrieve original and patched code blocks
+                original_block = finding.get("original_block")
+                patched_block = finding.get("patched_block")
                 
-                for rem in remediations:
-                    if rem.get("file") == file_path:
-                        original_block = rem.get("original")
-                        patched_block = rem.get("patched")
-                        break
-                        
-                if not original_block and finding.get("code_snippet"):
-                    original_block = finding.get("code_snippet")
-                    # If we don't have a structured patched block, fallback to recommendation
-                    if finding.get("fix_suggestion"):
-                        patched_block = finding.get("fix_suggestion")
-                        
+                if not original_block:
+                    remediations = report_data.get("remediations", [])
+                    clean_file_path = file_path.strip().lstrip("./").lstrip("/")
+                    for rem in remediations:
+                        rem_file = rem.get("file", "").strip().lstrip("./").lstrip("/")
+                        if rem_file == clean_file_path or rem_file.endswith(clean_file_path) or clean_file_path.endswith(rem_file):
+                            original_block = rem.get("original")
+                            patched_block = rem.get("patched")
+                            break
+                            
+                    if not original_block and finding.get("code_snippet"):
+                        original_block = finding.get("code_snippet")
+                        if finding.get("fix_suggestion"):
+                            patched_block = finding.get("fix_suggestion")
+                            
+                    findings[idx]["original_block"] = original_block
+                    findings[idx]["patched_block"] = patched_block
+                    
                 if file_path and original_block and patched_block:
                     print(f"Pushing commit to GitHub for {owner}/{repo}: {file_path}")
                     github_api_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}"
