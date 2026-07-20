@@ -25,11 +25,12 @@ export default function Dashboard({ username, onLogout, theme, setTheme }) {
   const [activeScan, setActiveScan] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
-  const [percentage, setPercentage] = useState(10);
-  const [statusText, setStatusText] = useState('');
+  const [progressPercent, setProgressPercent] = useState(10);
+  const [statusMsg, setStatusMsg] = useState('');
   const [severityFilter, setSeverityFilter] = useState('All');
   const [depSearch, setDepSearch] = useState('');
   const [depFilter, setDepFilter] = useState('all');
+  const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, workflows, ai-assistant
   const [expandedFindings, setExpandedFindings] = useState({});
   const [applyingFix, setApplyingFix] = useState(null);
