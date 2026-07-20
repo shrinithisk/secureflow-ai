@@ -5,6 +5,22 @@ import re
 
 OSV_API_URL = "https://api.osv.dev/v1/query"
 
+def parse_version_tuple(v_str):
+    if not v_str:
+        return (0, 0, 0)
+    parts = []
+    for part in str(v_str).split('.'):
+        num_str = ""
+        for char in part:
+            if char.isdigit():
+                num_str += char
+            else:
+                break
+        parts.append(int(num_str) if num_str else 0)
+    while len(parts) < 3:
+        parts.append(0)
+    return tuple(parts[:3])
+
 def parse_requirements_txt(filepath):
     dependencies = []
     if not os.path.exists(filepath):
@@ -79,18 +95,23 @@ async def scan_dependencies(repo_path):
         is_vuln = False
         cve_id = None
         
-        if result and "vulns" in result:
+        if result and "vulns" in result and result["vulns"]:
             is_vuln = True
-            for vuln in result["vulns"]:
-                summary = vuln.get("summary", "No summary provided")
-                details = vuln.get("details", "")
+            vulns = result["vulns"]
+            
+            max_fix_version = None
+            cves = []
+            vuln_descriptions = []
+            
+            for vuln in vulns:
                 cve = "Unknown"
                 if "aliases" in vuln:
-                    cves = [a for a in vuln["aliases"] if a.startswith("CVE-")]
-                    if cves:
-                        cve = cves[0]
-                cve_id = cve
-                
+                    cve_aliases = [a for a in vuln["aliases"] if a.startswith("CVE-")]
+                    if cve_aliases:
+                        cve = cve_aliases[0]
+                if cve not in cves:
+                    cves.append(cve)
+                    
                 # Propose fix version
                 fix_version = None
                 if "affected" in vuln:
@@ -103,38 +124,53 @@ async def scan_dependencies(repo_path):
                                     for e in events:
                                         if "fixed" in e:
                                             fix_version = e["fixed"]
-                
-                fix_suggestion = None
-                original_block = None
-                patched_block = None
-                
+                                            
                 if fix_version and fix_version != "Check advisory":
-                    if dep["ecosystem"] == "PyPI":
-                        fix_suggestion = f"Upgrade `{dep['name']}` from `{dep['version']}` to `{fix_version}` in requirements.txt"
-                        original_block = f"{dep['name']}=={dep['version']}"
-                        patched_block = f"{dep['name']}=={fix_version}"
-                    elif dep["ecosystem"] == "npm":
-                        fix_suggestion = f"Upgrade `{dep['name']}` from `{dep['version']}` to `{fix_version}` in package.json"
-                        # Support exact version string replacements
-                        original_block = f'"{dep["name"]}": "{dep["version"]}"'
-                        patched_block = f'"{dep["name"]}": "{fix_version}"'
+                    if max_fix_version is None:
+                        max_fix_version = fix_version
+                    else:
+                        if parse_version_tuple(fix_version) > parse_version_tuple(max_fix_version):
+                            max_fix_version = fix_version
+                            
+                summary = vuln.get("summary", "No summary provided")
+                vuln_descriptions.append(f"* **{cve}**: {summary}")
                 
-                findings.append({
-                    "id": vuln.get("id"),
-                    "cve": cve,
-                    "tool": "osv",
-                    "type": f"CVE Vulnerability: {dep['name']}",
-                    "severity": "High",
-                    "package": dep["name"],
-                    "current_version": dep["version"],
-                    "fixed_version": fix_version or "Check advisory",
-                    "fix_suggestion": fix_suggestion,
-                    "original_block": original_block,
-                    "patched_block": patched_block,
-                    "description": f"{summary}\n\n### Details\n{details}" if details else summary,
-                    "file": "requirements.txt" if dep["ecosystem"] == "PyPI" else "package.json"
-                })
-                
+            cve_str = ", ".join(cves)
+            cve_id = cves[0] if cves else "Unknown"
+            
+            fix_suggestion = None
+            original_block = None
+            patched_block = None
+            
+            if max_fix_version:
+                if dep["ecosystem"] == "PyPI":
+                    fix_suggestion = f"Upgrade `{dep['name']}` from `{dep['version']}` to `{max_fix_version}` in requirements.txt"
+                    original_block = f"{dep['name']}=={dep['version']}"
+                    patched_block = f"{dep['name']}=={max_fix_version}"
+                elif dep["ecosystem"] == "npm":
+                    fix_suggestion = f"Upgrade `{dep['name']}` from `{dep['version']}` to `{max_fix_version}` in package.json"
+                    original_block = f'"{dep["name"]}": "{dep["version"]}"'
+                    patched_block = f'"{dep["name"]}": "{max_fix_version}"'
+                    
+            desc_bullet_points = "\n".join(vuln_descriptions)
+            combined_description = f"Multiple vulnerabilities ({len(vulns)}) found in package **{dep['name']}**:\n\n{desc_bullet_points}"
+            
+            findings.append({
+                "id": f"OSV-{dep['name']}",
+                "cve": cve_str,
+                "tool": "osv",
+                "type": f"CVE Vulnerability: {dep['name']}",
+                "severity": "High",
+                "package": dep["name"],
+                "current_version": dep["version"],
+                "fixed_version": max_fix_version or "Check advisory",
+                "fix_suggestion": fix_suggestion,
+                "original_block": original_block,
+                "patched_block": patched_block,
+                "description": combined_description,
+                "file": "requirements.txt" if dep["ecosystem"] == "PyPI" else "package.json"
+            })
+            
         dependencies_list.append({
             "name": dep["name"],
             "version": dep["version"],
