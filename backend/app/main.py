@@ -139,8 +139,15 @@ async def scan_url(req: ScanRequest, current_user: dict = Depends(verify_token))
             result["health_scores"]["pipeline_score"],
             json.dumps(result)
         ))
+        scan_id = cursor.lastrowid
         conn.commit()
         conn.close()
+        
+        result["repo_name"] = repo_name
+        result["repo_url"] = repo_url
+        result["id"] = scan_id
+        import datetime
+        result["created_at"] = datetime.datetime.now().isoformat()
         
         return result
     except Exception as e:
@@ -194,8 +201,15 @@ async def scan_zip(file: UploadFile = File(...), current_user: dict = Depends(ve
             result["health_scores"]["pipeline_score"],
             json.dumps(result)
         ))
+        scan_id = cursor.lastrowid
         conn.commit()
         conn.close()
+        
+        result["repo_name"] = repo_name
+        result["repo_url"] = "ZIP Upload: " + file.filename
+        result["id"] = scan_id
+        import datetime
+        result["created_at"] = datetime.datetime.now().isoformat()
         
         return result
     except Exception as e:
@@ -228,7 +242,7 @@ def get_scan(scan_id: int, current_user: dict = Depends(verify_token)):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT report_json FROM scans WHERE id = ? AND user_id = ?
+        SELECT repo_name, repo_url, created_at, report_json FROM scans WHERE id = ? AND user_id = ?
     """, (scan_id, current_user["user_id"]))
     row = cursor.fetchone()
     conn.close()
@@ -236,7 +250,12 @@ def get_scan(scan_id: int, current_user: dict = Depends(verify_token)):
     if not row:
         raise HTTPException(status_code=404, detail="Scan report not found")
         
-    return json.loads(row["report_json"])
+    report = json.loads(row["report_json"])
+    report["repo_name"] = row["repo_name"]
+    report["repo_url"] = row["repo_url"]
+    report["created_at"] = row["created_at"]
+    report["id"] = scan_id
+    return report
 
 @app.delete("/api/scans/{scan_id}")
 def delete_scan(scan_id: int, current_user: dict = Depends(verify_token)):

@@ -557,12 +557,19 @@ export default function Dashboard({ username, onLogout }) {
               
               {/* Premium Printable Header Bar */}
               <div className="flex justify-between items-center bg-slate-900/40 border border-slate-800/80 p-5 rounded-2xl shadow-lg no-print">
-                <div>
-                  <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-                    <Terminal className="w-5 h-5 text-indigo-400" />
-                    Security Report: {activeScan.repo_name}
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-1">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
+                      <Terminal className="w-5 h-5 text-indigo-400" />
+                      Security Report
+                    </h2>
+                    {activeScan.repo_name && (
+                      <span className="px-2.5 py-0.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-bold rounded-lg font-mono truncate max-w-[280px]">
+                        {activeScan.repo_name}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-1">
                     Generated on {activeScan.created_at ? new Date(activeScan.created_at).toLocaleString() : new Date().toLocaleString()}
                   </p>
                 </div>
