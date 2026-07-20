@@ -6,7 +6,12 @@ import axios from 'axios';
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [username, setUsername] = useState(localStorage.getItem('username') || '');
-  const [view, setView] = useState('login'); // login, register, dashboard
+  const [view, setView] = useState('login'); // login, dashboard
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     if (token) {
@@ -29,10 +34,12 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070b15]">
+    <div className={`min-h-screen ${theme === 'light' ? 'light-theme bg-[#f8fafc]' : 'bg-[#070b15]'}`}>
       {view === 'login' && (
         <Login 
           onLoginSuccess={handleLoginSuccess} 
+          theme={theme}
+          setTheme={setTheme}
         />
       )}
       
@@ -40,6 +47,8 @@ function App() {
         <Dashboard 
           username={username} 
           onLogout={handleLogout} 
+          theme={theme}
+          setTheme={setTheme}
         />
       )}
     </div>

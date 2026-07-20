@@ -3,7 +3,7 @@ import axios from 'axios';
 import { 
   ShieldAlert, LogOut, Terminal, UploadCloud, Globe, RefreshCw, 
   CheckCircle2, XCircle, Info, ExternalLink, Calendar, ChevronRight, MessageSquare, GitBranch,
-  Trash2, FileText, Layers
+  Trash2, FileText, Layers, Sun, Moon
 } from 'lucide-react';
 import YAMLDiff from './YAMLDiff';
 import AIAssistantTab from './AIAssistantTab';
@@ -17,7 +17,7 @@ const capitalizeSentences = (text) => {
   });
 };
 
-export default function Dashboard({ username, onLogout }) {
+export default function Dashboard({ username, onLogout, theme, setTheme }) {
   const [repoUrl, setRepoUrl] = useState('');
   const [zipFile, setZipFile] = useState(null);
   const [history, setHistory] = useState([]);
@@ -330,14 +330,23 @@ export default function Dashboard({ username, onLogout }) {
           </nav>
         </div>
 
-        <button 
-          onClick={onLogout}
-          className="px-4 py-2 text-xs bg-slate-900 border border-slate-800 hover:border-red-900/40 text-slate-400 hover:text-red-300 rounded-xl flex items-center gap-1.5 transition-all focus:outline-none"
-        >
-          <LogOut className="w-4 h-4" />
-          Logout
-        </button>
-      </header>
+         <div className="flex items-center gap-3">
+           <button
+             type="button"
+             onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+             className="p-2 bg-slate-900 border border-slate-800 text-indigo-400 hover:text-indigo-300 rounded-xl flex items-center justify-center transition-all cursor-pointer focus:outline-none no-print"
+           >
+             {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+           </button>
+           <button 
+             onClick={onLogout}
+             className="px-4 py-2 text-xs bg-slate-900 border border-slate-800 hover:border-red-900/40 text-slate-400 hover:text-red-300 rounded-xl flex items-center gap-1.5 transition-all focus:outline-none no-print"
+           >
+             <LogOut className="w-4 h-4" />
+             Logout
+           </button>
+         </div>
+       </header>
 
       {/* Main Content Area */}
       <div className="flex-1 max-w-[1600px] w-full mx-auto p-6">

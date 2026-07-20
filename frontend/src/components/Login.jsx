@@ -12,11 +12,13 @@ import {
   CheckCircle2, 
   Lock, 
   Cpu, 
-  Globe 
+  Globe,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
-export default function Login({ onLoginSuccess }) {
+export default function Login({ onLoginSuccess, theme, setTheme }) {
   const [isRegister, setIsRegister] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -65,6 +67,17 @@ export default function Login({ onLoginSuccess }) {
       {/* Premium Floating Gradient Orbs */}
       <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/0 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-tl from-purple-500/10 to-indigo-500/0 blur-[120px] pointer-events-none" />
+
+      {/* Theme Toggle Button */}
+      <div className="absolute top-4 right-4 z-50">
+        <button
+          type="button"
+          onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+          className="p-2 bg-slate-900/60 border border-slate-800/80 text-indigo-400 hover:text-indigo-300 rounded-xl flex items-center justify-center transition-all cursor-pointer focus:outline-none"
+        >
+          {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+        </button>
+      </div>
 
       {/* Floating Animated Tech Icons */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
