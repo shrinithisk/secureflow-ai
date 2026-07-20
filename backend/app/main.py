@@ -486,11 +486,9 @@ def apply_fix(scan_id: int, request: ApplyFixRequest, current_user: dict = Depen
                                     findings[idx]["pr_url"] = pr_url
                                     print(f"PR Successfully created: {pr_url}")
                                 else:
-                                    conn.close()
-                                    raise HTTPException(
-                                        status_code=400,
-                                        detail=f"GitHub PR creation failed ({pr_resp.status_code}). Detail: {pr_resp.text}"
-                                    )
+                                    print(f"GitHub PR creation failed ({pr_resp.status_code}). Using compare URL fallback.")
+                                    pr_url = f"https://github.com/{owner}/{repo}/compare/{default_branch}...{new_branch}?expand=1"
+                                    findings[idx]["pr_url"] = pr_url
                             else:
                                 conn.close()
                                 raise HTTPException(
