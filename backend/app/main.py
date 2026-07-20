@@ -351,6 +351,7 @@ def apply_fix(scan_id: int, request: ApplyFixRequest, current_user: dict = Depen
     if github_token and repo_url and "github.com" in repo_url:
         import base64
         import httpx
+        import uuid
         try:
             url_clean = repo_url.rstrip("/")
             parts = url_clean.split("github.com/")[-1].split("/")
@@ -360,6 +361,7 @@ def apply_fix(scan_id: int, request: ApplyFixRequest, current_user: dict = Depen
                 
                 finding = findings[idx]
                 file_path = finding.get("file")
+                package_name = finding.get("package", "dependency")
                 
                 # Retrieve original and patched code blocks
                 original_block = finding.get("original_block")
@@ -384,14 +386,57 @@ def apply_fix(scan_id: int, request: ApplyFixRequest, current_user: dict = Depen
                     findings[idx]["patched_block"] = patched_block
                     
                 if file_path and original_block and patched_block:
-                    print(f"Pushing commit to GitHub for {owner}/{repo}: {file_path}")
-                    github_api_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}"
+                    print(f"Applying branch-based PR fix for {owner}/{repo}: {file_path}")
+                    
                     headers = {
                         "Authorization": f"token {github_token}",
                         "Accept": "application/vnd.github.v3+json"
                     }
                     
                     with httpx.Client() as client:
+                        # 1. Fetch Repository default branch
+                        repo_info_url = f"https://api.github.com/repos/{owner}/{repo}"
+                        repo_resp = client.get(repo_info_url, headers=headers, timeout=10.0)
+                        if repo_resp.status_code != 200:
+                            conn.close()
+                            raise HTTPException(
+                                status_code=400,
+                                detail=f"Failed to fetch repository metadata ({repo_resp.status_code}). Check your PAT permissions."
+                            )
+                        default_branch = repo_resp.json().get("default_branch", "main")
+                        
+                        # 2. Get Ref of the default branch
+                        ref_url = f"https://api.github.com/repos/{owner}/{repo}/git/ref/heads/{default_branch}"
+                        ref_resp = client.get(ref_url, headers=headers, timeout=10.0)
+                        if ref_resp.status_code != 200:
+                            conn.close()
+                            raise HTTPException(
+                                status_code=400,
+                                detail=f"Failed to fetch branch reference for {default_branch} ({ref_resp.status_code})."
+                            )
+                        base_sha = ref_resp.json().get("object", {}).get("sha")
+                        
+                        # 3. Create a unique feature branch name
+                        rand_suffix = uuid.uuid4().hex[:6]
+                        clean_pkg = re.sub(r'[^a-zA-Z0-9_\-]', '', package_name)
+                        new_branch = f"secureflow/patch-{clean_pkg}-{rand_suffix}"
+                        
+                        # 4. Create new branch reference on GitHub
+                        create_ref_url = f"https://api.github.com/repos/{owner}/{repo}/git/refs"
+                        ref_body = {
+                            "ref": f"refs/heads/{new_branch}",
+                            "sha": base_sha
+                        }
+                        create_ref_resp = client.post(create_ref_url, headers=headers, json=ref_body, timeout=10.0)
+                        if create_ref_resp.status_code not in [200, 201]:
+                            conn.close()
+                            raise HTTPException(
+                                status_code=400,
+                                detail=f"Failed to create new feature branch {new_branch} ({create_ref_resp.status_code})."
+                            )
+                            
+                        # 5. Fetch current file content on the newly created branch
+                        github_api_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}?ref={new_branch}"
                         get_resp = client.get(github_api_url, headers=headers, timeout=10.0)
                         if get_resp.status_code == 200:
                             file_meta = get_resp.json()
@@ -411,27 +456,51 @@ def apply_fix(scan_id: int, request: ApplyFixRequest, current_user: dict = Depen
                                     updated_content = current_content.replace(original_block.strip(), patched_block.strip())
                                     
                             if updated_content != current_content:
+                                # 6. Commit the modified file to the new feature branch
                                 put_body = {
                                     "message": f"SecureFlow AI: Automated code hardening patch for {os.path.basename(file_path)}",
                                     "content": base64.b64encode(updated_content.encode("utf-8")).decode("utf-8"),
-                                    "sha": file_sha
+                                    "sha": file_sha,
+                                    "branch": new_branch
                                 }
-                                put_resp = client.put(github_api_url, headers=headers, json=put_body, timeout=10.0)
-                                if put_resp.status_code in [200, 201]:
-                                    print("GitHub Commit successfully created!")
+                                put_resp = client.put(f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}", headers=headers, json=put_body, timeout=10.0)
+                                if put_resp.status_code not in [200, 201]:
+                                    conn.close()
+                                    raise HTTPException(
+                                        status_code=400,
+                                        detail=f"GitHub Commit failed to branch {new_branch} ({put_resp.status_code})."
+                                    )
+                                    
+                                # 7. Create Pull Request from feature branch to default base branch
+                                pulls_url = f"https://api.github.com/repos/{owner}/{repo}/pulls"
+                                pr_body = {
+                                    "title": f"Security Fix: Harden {package_name} in {os.path.basename(file_path)}",
+                                    "head": new_branch,
+                                    "base": default_branch,
+                                    "body": f"### 🛡️ SecureFlow AI: Vulnerability Remediation PR\n\nThis Pull Request was automatically generated by **SecureFlow AI** to resolve security vulnerabilities detected in your codebase.\n\n#### 🩹 Fix Details:\n* **Target File**: `{file_path}`\n* **Hardened Package**: `{package_name}`\n* **Vulnerability Description**: {finding.get('description', 'N/A')}\n\n*Please review these changes, run your test suites, and merge when ready!*"
+                                }
+                                pr_resp = client.post(pulls_url, headers=headers, json=pr_body, timeout=10.0)
+                                if pr_resp.status_code in [200, 201]:
+                                    pr_url = pr_resp.json().get("html_url")
+                                    findings[idx]["pr_url"] = pr_url
+                                    print(f"PR Successfully created: {pr_url}")
                                 else:
                                     conn.close()
                                     raise HTTPException(
                                         status_code=400,
-                                        detail=f"GitHub Commit failed ({put_resp.status_code}). Make sure your PAT has write permission for this repository."
+                                        detail=f"GitHub PR creation failed ({pr_resp.status_code}). Detail: {pr_resp.text}"
                                     )
                             else:
-                                print("No diff detected or original block not matching in current file content.")
+                                conn.close()
+                                raise HTTPException(
+                                    status_code=400,
+                                    detail="No changes detected in file contents (replacement block did not match)."
+                                )
                         else:
                             conn.close()
                             raise HTTPException(
                                 status_code=400,
-                                detail=f"Failed to fetch file from GitHub ({get_resp.status_code}). Make sure your PAT is valid and has access."
+                                detail=f"Failed to fetch file from GitHub on branch {new_branch} ({get_resp.status_code})."
                             )
         except HTTPException:
             raise

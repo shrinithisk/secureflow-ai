@@ -782,7 +782,18 @@ export default function Dashboard({ username, onLogout }) {
                                     </span>
                                     <div className="bg-emerald-950/15 border border-emerald-900/30 p-2.5 rounded-lg text-[10px] text-emerald-300 leading-normal">
                                       <span className="font-bold block text-emerald-400 mb-1 uppercase tracking-wider text-[9px]">Fix Details:</span>
-                                      <p className="mb-1.5 text-slate-400">Patched in codebase and committed to GitHub:</p>
+                                      <p className="mb-1.5 text-slate-400">Patched in codebase and Pull Request submitted to GitHub:</p>
+                                      {finding.pr_url && (
+                                        <a
+                                          href={finding.pr_url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-600 hover:bg-indigo-550 border border-indigo-500/20 hover:border-indigo-500/40 text-[10px] font-bold text-slate-100 rounded-lg transition-all shadow mb-2 focus:outline-none w-full justify-center"
+                                        >
+                                          <ExternalLink className="w-3 h-3" />
+                                          View Pull Request
+                                        </a>
+                                      )}
                                       <div className="bg-slate-950/60 p-2 rounded font-mono text-[9px] text-slate-400 border border-emerald-950/50 mb-1.5 break-all">
                                         <span className="text-red-400/90 font-bold">- {finding.original_block}</span>
                                         <div className="h-px bg-slate-800/20 my-1" />
