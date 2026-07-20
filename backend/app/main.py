@@ -484,11 +484,13 @@ def apply_fix(scan_id: int, request: ApplyFixRequest, current_user: dict = Depen
                                 if pr_resp.status_code in [200, 201]:
                                     pr_url = pr_resp.json().get("html_url")
                                     findings[idx]["pr_url"] = pr_url
+                                    findings[idx]["branch_name"] = new_branch
                                     print(f"PR Successfully created: {pr_url}")
                                 else:
                                     print(f"GitHub PR creation failed ({pr_resp.status_code}). Using compare URL fallback.")
                                     pr_url = f"https://github.com/{owner}/{repo}/compare/{default_branch}...{new_branch}?expand=1"
                                     findings[idx]["pr_url"] = pr_url
+                                    findings[idx]["branch_name"] = new_branch
                             else:
                                 conn.close()
                                 raise HTTPException(

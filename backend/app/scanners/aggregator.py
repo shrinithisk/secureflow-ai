@@ -116,7 +116,58 @@ async def run_all_scans(repo_path):
         return (sev_val, file_path, line_val)
         
     deduped_findings.sort(key=get_sorting_key)
-            
+    
+    # Define regex-based credential masking helper
+    import re
+    def mask_credentials_in_text(text: str) -> str:
+        if not text:
+            return text
+        # Mask private keys
+        text = re.sub(
+            r'-----BEGIN[ A-Z0-9_-]+PRIVATE KEY-----\s*[\s\S]+?\s*-----END[ A-Z0-9_-]+PRIVATE KEY-----',
+            '-----BEGIN PRIVATE KEY-----\n****************************************\n-----END PRIVATE KEY-----',
+            text
+        )
+        # Mask GitHub Personal Access Tokens
+        text = re.sub(
+            r'(ghp_[a-zA-Z0-9_]{4})[a-zA-Z0-9_]{20,255}',
+            r'\1************************',
+            text
+        )
+        # Mask AWS Access Keys
+        text = re.sub(
+            r'(AKIA[0-9A-Z]{4})[0-9A-Z]{12}',
+            r'\1************',
+            text
+        )
+        # Mask Slack webhook URLs
+        text = re.sub(
+            r'(https://hooks\.slack\.com/services/T[A-Z0-9_]+/B[A-Z0-9_]+/)[a-zA-Z0-9_]+',
+            r'\1************************',
+            text
+        )
+        # Mask raw variable assignments in code snippets
+        keywords = r'(password|passwd|secret|token|api_key|apikey|access_key|private_key|key|pwd)'
+        text = re.sub(
+            rf'({keywords}\s*[:=]\s*")[^"]{{8,}}(")',
+            r'\1********\2',
+            text,
+            flags=re.IGNORECASE
+        )
+        text = re.sub(
+            rf"({keywords}\s*[:=]\s*')[^']{{8,}}(')",
+            r"\1********\2",
+            text,
+            flags=re.IGNORECASE
+        )
+        return text
+
+    # Centralized cleansing loop for SOC 2 compliance
+    for f in deduped_findings:
+        for field in ["description", "code_snippet", "original_block", "patched_block"]:
+            if f.get(field):
+                f[field] = mask_credentials_in_text(f[field])
+             
     print(f"Aggregation complete. Found {len(deduped_findings)} unique vulnerabilities.")
     return {
         "findings": deduped_findings,

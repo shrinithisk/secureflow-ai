@@ -17,6 +17,100 @@ const capitalizeSentences = (text) => {
   });
 };
 
+const GitHubBranchStatus = ({ repoUrl, branchName, githubToken }) => {
+  const [status, setStatus] = React.useState('loading'); // loading, success, failure, pending, none
+  
+  React.useEffect(() => {
+    if (!githubToken || !repoUrl || !branchName) {
+      setStatus('none');
+      return;
+    }
+    
+    let isMounted = true;
+    const fetchStatus = async () => {
+      try {
+        const urlClean = repoUrl.replace(/\/$/, '');
+        const parts = urlClean.split("github.com/")[1]?.split("/");
+        if (!parts || parts.length < 2) return;
+        const owner = parts[0];
+        const repo = parts[1].replace(".git", "");
+        
+        const res = await axios.get(
+          `https://api.github.com/repos/${owner}/${repo}/commits/${branchName}/check-runs`,
+          {
+            headers: {
+              Authorization: `token ${githubToken}`,
+              Accept: 'application/vnd.github.v3+json'
+            }
+          }
+        );
+        
+        if (!isMounted) return;
+        
+        const runs = res.data.check_runs || [];
+        if (runs.length === 0) {
+          setStatus('none');
+          return;
+        }
+        
+        if (runs.some(r => r.conclusion === 'failure' || r.conclusion === 'action_required')) {
+          setStatus('failure');
+        } else if (runs.some(r => r.status !== 'completed')) {
+          setStatus('pending');
+        } else if (runs.every(r => r.conclusion === 'success' || r.conclusion === 'skipped')) {
+          setStatus('success');
+        } else {
+          setStatus('pending');
+        }
+      } catch (err) {
+        if (isMounted) setStatus('none');
+      }
+    };
+    
+    fetchStatus();
+    const interval = setInterval(fetchStatus, 15000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [repoUrl, branchName, githubToken]);
+
+  if (status === 'loading') {
+    return (
+      <span className="inline-flex items-center gap-1 text-[9px] text-slate-500 font-mono">
+        <span className="w-1 h-1 bg-slate-500 rounded-full animate-ping" />
+        Checking CI...
+      </span>
+    );
+  }
+  
+  if (status === 'success') {
+    return (
+      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-[9px] font-bold">
+        ✓ Build Passing
+      </span>
+    );
+  }
+  
+  if (status === 'failure') {
+    return (
+      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-400 font-mono text-[9px] font-bold">
+        ✗ Build Failing
+      </span>
+    );
+  }
+  
+  if (status === 'pending') {
+    return (
+      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 font-mono text-[9px] font-bold">
+        ⚡ CI Running
+      </span>
+    );
+  }
+  
+  return null;
+};
+
 export default function Dashboard({ username, onLogout, theme, setTheme }) {
   const [repoUrl, setRepoUrl] = useState('');
   const [zipFile, setZipFile] = useState(null);
@@ -31,10 +125,15 @@ export default function Dashboard({ username, onLogout, theme, setTheme }) {
   const [depSearch, setDepSearch] = useState('');
   const [depFilter, setDepFilter] = useState('all');
   const [error, setError] = useState('');
+  const [prPolicy, setPrPolicy] = useState(localStorage.getItem('pr_policy') || 'all');
   const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, workflows, ai-assistant
   const [expandedFindings, setExpandedFindings] = useState({});
   const [applyingFix, setApplyingFix] = useState(null);
   const [githubToken, setGithubToken] = useState(localStorage.getItem('github_token') || '');
+
+  useEffect(() => {
+    localStorage.setItem('pr_policy', prPolicy);
+  }, [prPolicy]);
 
   useEffect(() => {
     setExpandedFindings({});
@@ -403,6 +502,26 @@ export default function Dashboard({ username, onLogout, theme, setTheme }) {
             </form>
           </div>
 
+          {/* Host CLI Scanner Widget */}
+          <div className="bg-gradient-to-b from-slate-900/60 to-[#0f172a] border border-slate-800/80 rounded-2xl p-5 shadow-xl relative overflow-hidden shadow-indigo-950/5">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-purple-500/5 rounded-full blur-lg pointer-events-none" />
+            
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300 mb-3.5 flex items-center gap-2">
+              <Terminal className="w-4 h-4 text-purple-400" />
+              Local CLI Auditor
+            </h3>
+            
+            <p className="text-[10px] text-slate-400 mb-4 leading-relaxed">
+              Scan repositories locally in your pre-commit hooks or terminal using the SecureFlow CLI runner.
+            </p>
+            
+            <div className="bg-slate-950/60 border border-slate-850 rounded-xl p-3.5 font-mono text-[10px] relative group select-all">
+              <code className="text-purple-300 block break-all leading-normal">
+                npx secureflow-cli scan --repo {activeScan?.repo_url ? activeScan.repo_url.replace(/\/$/, "") : "github-url"}
+              </code>
+            </div>
+          </div>
+
           {/* GitHub Auto-Fix Integration Widget */}
           <div className="bg-gradient-to-b from-slate-900/60 to-[#0f172a] border border-slate-800/80 rounded-2xl p-5 shadow-xl relative overflow-hidden shadow-indigo-950/5">
             <div className="absolute top-0 right-0 w-16 h-16 bg-indigo-500/5 rounded-full blur-lg pointer-events-none" />
@@ -429,6 +548,21 @@ export default function Dashboard({ username, onLogout, theme, setTheme }) {
                     localStorage.setItem('github_token', e.target.value);
                   }}
                 />
+              </div>
+              <div>
+                <label className="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">
+                  PR Severity Policy
+                </label>
+                <select
+                  value={prPolicy}
+                  onChange={(e) => setPrPolicy(e.target.value)}
+                  className="w-full text-xs text-slate-300 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2.5 focus:outline-none cursor-pointer"
+                >
+                  <option value="all">All Vulnerabilities</option>
+                  <option value="medium">Medium & Above</option>
+                  <option value="high">High & Critical Only</option>
+                  <option value="critical">Critical Only</option>
+                </select>
               </div>
               {githubToken && (
                 <button
@@ -863,15 +997,24 @@ export default function Dashboard({ username, onLogout, theme, setTheme }) {
                                       <span className="font-bold block text-emerald-400 mb-1 uppercase tracking-wider text-[9px]">Fix Details:</span>
                                       <p className="mb-1.5 text-slate-400">Patched in codebase and Pull Request submitted to GitHub:</p>
                                       {finding.pr_url && (
-                                        <a
-                                          href={finding.pr_url}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-600 hover:bg-indigo-550 border border-indigo-500/20 hover:border-indigo-500/40 text-[10px] font-bold text-slate-100 rounded-lg transition-all shadow mb-2 focus:outline-none w-full justify-center"
-                                        >
-                                          <ExternalLink className="w-3 h-3" />
-                                          View Pull Request
-                                        </a>
+                                        <div className="flex flex-col gap-1.5 mb-2">
+                                          <a
+                                            href={finding.pr_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-600 hover:bg-indigo-550 border border-indigo-500/20 hover:border-indigo-500/40 text-[10px] font-bold text-slate-100 rounded-lg transition-all shadow focus:outline-none w-full justify-center"
+                                          >
+                                            <ExternalLink className="w-3 h-3" />
+                                            View Pull Request
+                                          </a>
+                                          <div className="flex justify-center">
+                                            <GitHubBranchStatus 
+                                              repoUrl={activeScan?.repo_url} 
+                                              branchName={finding.branch_name} 
+                                              githubToken={githubToken} 
+                                            />
+                                          </div>
+                                        </div>
                                       )}
                                       <div className="bg-slate-950/60 p-2 rounded font-mono text-[9px] text-slate-400 border border-emerald-950/50 mb-1.5 break-all">
                                         <span className="text-red-400/90 font-bold">- {finding.original_block}</span>
@@ -884,26 +1027,49 @@ export default function Dashboard({ username, onLogout, theme, setTheme }) {
                                     </div>
                                   </>
                                 ) : (
-                                  <button
-                                    onClick={() => {
-                                      const originalIndex = activeScan.findings.findIndex(f => f === finding);
-                                      applySecurityFix(originalIndex);
-                                    }}
-                                    disabled={applyingFix !== null}
-                                    className="w-full py-1.5 px-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer focus:outline-none"
-                                  >
-                                    {applyingFix === activeScan.findings.findIndex(f => f === finding) ? (
-                                      <>
-                                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                                        Applying...
-                                      </>
-                                    ) : (
-                                      <>
-                                        <CheckCircle2 className="w-3.5 h-3.5" />
-                                        Apply Auto-Fix
-                                      </>
-                                    )}
-                                  </button>
+                                  (() => {
+                                    const severityWeights = { 'Critical': 4, 'High': 3, 'Medium': 2, 'Low': 1, 'Info': 0 };
+                                    const policyThresholds = { 'all': 0, 'medium': 2, 'high': 3, 'critical': 4 };
+                                    const findingWeight = severityWeights[finding.severity] ?? 2;
+                                    const threshold = policyThresholds[prPolicy] ?? 0;
+                                    const allowed = findingWeight >= threshold;
+
+                                    if (!allowed) {
+                                      return (
+                                        <button
+                                          disabled
+                                          title={`Auto-fix restricted: severity (${finding.severity}) is below current PR Policy (${prPolicy.toUpperCase()}).`}
+                                          className="w-full py-1.5 px-3 bg-slate-950/80 border border-slate-800 text-slate-500 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-not-allowed focus:outline-none"
+                                        >
+                                          <Lock className="w-3.5 h-3.5 text-slate-600" />
+                                          Below Policy Threshold
+                                        </button>
+                                      );
+                                    }
+
+                                    return (
+                                      <button
+                                        onClick={() => {
+                                          const originalIndex = activeScan.findings.findIndex(f => f === finding);
+                                          applySecurityFix(originalIndex);
+                                        }}
+                                        disabled={applyingFix !== null}
+                                        className="w-full py-1.5 px-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all active:scale-95 cursor-pointer focus:outline-none"
+                                      >
+                                        {applyingFix === activeScan.findings.findIndex(f => f === finding) ? (
+                                          <>
+                                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                            Applying...
+                                          </>
+                                        ) : (
+                                          <>
+                                            <CheckCircle2 className="w-3.5 h-3.5" />
+                                            Apply Auto-Fix
+                                          </>
+                                        )}
+                                      </button>
+                                    );
+                                  })()
                                 )}
                               </div>
                             </div>
