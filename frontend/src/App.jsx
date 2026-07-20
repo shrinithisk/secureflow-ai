@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Login from './components/Login';
-import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import axios from 'axios';
 
@@ -34,13 +33,6 @@ function App() {
       {view === 'login' && (
         <Login 
           onLoginSuccess={handleLoginSuccess} 
-          toggleRegister={() => setView('register')} 
-        />
-      )}
-      
-      {view === 'register' && (
-        <Register 
-          toggleLogin={() => setView('login')} 
         />
       )}
       
