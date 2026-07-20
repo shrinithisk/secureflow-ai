@@ -614,7 +614,19 @@ export default function Dashboard({ username, onLogout }) {
                   </div>
 
                   {/* AI Explanation & Attack Scenario Section */}
-                  {activeScan.risk_assessment && (
+                  {activeScan.health_scores?.repo_score === 100 ? (
+                    <div className="bg-emerald-950/15 border border-emerald-900/30 p-8 rounded-2xl text-center flex flex-col items-center gap-4 my-2 shadow-lg shadow-emerald-950/5">
+                      <div className="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/5 animate-pulse">
+                        <CheckCircle2 className="w-8 h-8" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-emerald-400">Repository Security Fully Hardened!</h3>
+                        <p className="text-xs text-slate-400 mt-1.5 max-w-lg mx-auto leading-relaxed">
+                          Great job! No package vulnerabilities, static code issues, or leaked secret credentials were found in your codebase. Your repository is in excellent condition!
+                        </p>
+                      </div>
+                    </div>
+                  ) : activeScan.risk_assessment ? (
                     <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl shadow-lg">
                       <h3 className="text-sm font-semibold uppercase tracking-wider text-indigo-400 mb-4">
                         AI Threat Scenario Analysis
@@ -630,7 +642,7 @@ export default function Dashboard({ username, onLogout }) {
                         </div>
                       )}
                     </div>
-                  )}
+                  ) : null}
                 </>
               )}
 
@@ -812,7 +824,19 @@ export default function Dashboard({ username, onLogout }) {
                     <GitBranch className="w-5 h-5 text-indigo-400" />
                     AI GitHub Actions Workflow Optimizer
                   </h2>
-                  {activeScan?.optimized_workflows && activeScan.optimized_workflows.length > 0 ? (
+                  {activeScan?.health_scores?.pipeline_score === 100 ? (
+                    <div className="bg-emerald-950/15 border border-emerald-900/30 rounded-2xl p-8 text-center flex flex-col items-center gap-4 my-2 shadow-lg shadow-emerald-950/5">
+                      <div className="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/5 animate-pulse">
+                        <CheckCircle2 className="w-8 h-8" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-emerald-400">CI/CD Workflows Fully Secure!</h3>
+                        <p className="text-xs text-slate-400 mt-1.5 max-w-lg mx-auto leading-relaxed">
+                          Your active GitHub Actions workflows are fully secure and optimized! They use secure 40-character commit SHAs, run with least-privilege permissions, and follow DevSecOps safety guidelines. No adjustments are needed!
+                        </p>
+                      </div>
+                    </div>
+                  ) : activeScan?.optimized_workflows && activeScan.optimized_workflows.length > 0 ? (
                     <YAMLDiff 
                       workflowData={activeScan.optimized_workflows[0]} 
                       scanId={activeScan.id}
