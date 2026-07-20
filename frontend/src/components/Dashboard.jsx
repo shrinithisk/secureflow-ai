@@ -25,10 +25,11 @@ export default function Dashboard({ username, onLogout, theme, setTheme }) {
   const [activeScan, setActiveScan] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
-  const [statusMsg, setStatusMsg] = useState('');
-  const [progressPercent, setProgressPercent] = useState(10);
-  const [error, setError] = useState('');
+  const [percentage, setPercentage] = useState(10);
+  const [statusText, setStatusText] = useState('');
   const [severityFilter, setSeverityFilter] = useState('All');
+  const [depSearch, setDepSearch] = useState('');
+  const [depFilter, setDepFilter] = useState('all');
   const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, workflows, ai-assistant
   const [expandedFindings, setExpandedFindings] = useState({});
   const [applyingFix, setApplyingFix] = useState(null);
@@ -941,54 +942,126 @@ export default function Dashboard({ username, onLogout, theme, setTheme }) {
                   </h2>
                   
                   {activeScan?.dependencies && activeScan.dependencies.length > 0 ? (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-xs border-collapse">
-                        <thead>
-                          <tr className="border-b border-slate-800 text-slate-400 font-semibold bg-slate-900/40">
-                            <th className="p-3">Package Name</th>
-                            <th className="p-3">Ecosystem</th>
-                            <th className="p-3">Scanned Version</th>
-                            <th className="p-3 text-center">Status</th>
-                            <th className="p-3">Advisory / CVE</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {activeScan.dependencies.map((dep, idx) => (
-                            <tr key={idx} className="border-b border-slate-800/60 hover:bg-slate-900/30 transition-colors">
-                              <td className="p-3 font-semibold text-slate-200">{dep.name}</td>
-                              <td className="p-3">
-                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                  dep.ecosystem === 'npm' ? 'bg-green-950/40 text-green-400 border border-green-900/30' : 'bg-blue-950/40 text-blue-400 border border-blue-900/30'
-                                }`}>
-                                  {dep.ecosystem}
-                                </span>
-                              </td>
-                              <td className="p-3 font-mono text-slate-400">{dep.version}</td>
-                              <td className="p-3 text-center">
-                                {dep.is_vulnerable ? (
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-950/40 text-red-400 border border-red-900/30">
-                                    <XCircle className="w-3 h-3" />
-                                    Vulnerable
-                                  </span>
-                                ) : (
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/40 text-emerald-400 border border-emerald-900/30">
-                                    <CheckCircle2 className="w-3 h-3" />
-                                    Secure
-                                  </span>
-                                )}
-                              </td>
-                              <td className="p-3 text-slate-300">
-                                {dep.is_vulnerable ? (
-                                  <span className="text-red-400 font-mono font-semibold">{dep.cve || 'Alert'}</span>
-                                ) : (
-                                  <span className="text-slate-500 italic">No vulnerabilities</span>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                    (() => {
+                      const filteredDeps = activeScan.dependencies.filter(dep => {
+                        if (depFilter === 'vulnerable' && !dep.is_vulnerable) return false;
+                        if (depFilter === 'secure' && dep.is_vulnerable) return false;
+                        if (depSearch.trim() !== '') {
+                          const q = depSearch.toLowerCase();
+                          return (dep.name || '').toLowerCase().includes(q) || 
+                                 (dep.version || '').toLowerCase().includes(q) || 
+                                 (dep.ecosystem || '').toLowerCase().includes(q) || 
+                                 (dep.cve || '').toLowerCase().includes(q);
+                        }
+                        return true;
+                      });
+
+                      return (
+                        <>
+                          {/* Dependency Audit Stats Header */}
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div className="bg-slate-950/40 border border-slate-850 p-4 rounded-xl flex flex-col">
+                              <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Total Scanned</span>
+                              <span className="text-lg font-bold text-slate-200 mt-1">{activeScan.dependencies.length}</span>
+                            </div>
+                            <div className="bg-emerald-950/10 border border-emerald-900/20 p-4 rounded-xl flex flex-col">
+                              <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Secure Packages</span>
+                              <span className="text-lg font-bold text-emerald-400 mt-1">{activeScan.dependencies.filter(d => !d.is_vulnerable).length}</span>
+                            </div>
+                            <div className="bg-red-950/10 border border-red-900/20 p-4 rounded-xl flex flex-col">
+                              <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Vulnerable Packages</span>
+                              <span className="text-lg font-bold text-red-400 mt-1">{activeScan.dependencies.filter(d => d.is_vulnerable).length}</span>
+                            </div>
+                          </div>
+
+                          {/* Control Bar (Search & Filter) */}
+                          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-5 pb-5 border-b border-slate-800/60 no-print w-full">
+                            <div className="flex gap-2 w-full sm:w-auto">
+                              {[
+                                { value: 'all', label: 'All' },
+                                { value: 'vulnerable', label: 'Vulnerable' },
+                                { value: 'secure', label: 'Secure' }
+                              ].map(f => (
+                                <button
+                                  key={f.value}
+                                  type="button"
+                                  onClick={() => setDepFilter(f.value)}
+                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all focus:outline-none flex-1 sm:flex-initial text-center cursor-pointer ${
+                                    depFilter === f.value
+                                      ? 'bg-indigo-600 text-white border border-indigo-500 shadow shadow-indigo-650/10'
+                                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200'
+                                  }`}
+                                >
+                                  {f.label}
+                                </button>
+                              ))}
+                            </div>
+                            <div className="relative w-full sm:max-w-xs">
+                              <input
+                                type="text"
+                                placeholder="Search packages..."
+                                className="w-full text-xs text-slate-300 bg-slate-950/60 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-2 focus:outline-none"
+                                value={depSearch}
+                                onChange={(e) => setDepSearch(e.target.value)}
+                              />
+                            </div>
+                          </div>
+
+                          {filteredDeps.length === 0 ? (
+                            <p className="text-xs text-slate-500 italic py-12 text-center">No dependencies found matching filter criteria.</p>
+                          ) : (
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-left text-xs border-collapse">
+                                <thead>
+                                  <tr className="border-b border-slate-800 text-slate-400 font-semibold bg-slate-900/40">
+                                    <th className="p-3">Package Name</th>
+                                    <th className="p-3">Ecosystem</th>
+                                    <th className="p-3">Scanned Version</th>
+                                    <th className="p-3 text-center">Status</th>
+                                    <th className="p-3">Advisory / CVE</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {filteredDeps.map((dep, idx) => (
+                                    <tr key={idx} className="border-b border-slate-800/60 hover:bg-slate-900/30 transition-colors">
+                                      <td className="p-3 font-semibold text-slate-200">{dep.name}</td>
+                                      <td className="p-3">
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                          dep.ecosystem === 'npm' ? 'bg-green-950/40 text-green-400 border border-green-900/30' : 'bg-blue-950/40 text-blue-400 border border-blue-900/30'
+                                        }`}>
+                                          {dep.ecosystem}
+                                        </span>
+                                      </td>
+                                      <td className="p-3 font-mono text-slate-400">{dep.version}</td>
+                                      <td className="p-3 text-center">
+                                        {dep.is_vulnerable ? (
+                                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-950/40 text-red-400 border border-red-900/30">
+                                            <XCircle className="w-3 h-3" />
+                                            Vulnerable
+                                          </span>
+                                        ) : (
+                                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/40 text-emerald-400 border border-emerald-900/30">
+                                            <CheckCircle2 className="w-3 h-3" />
+                                            Secure
+                                          </span>
+                                        )}
+                                      </td>
+                                      <td className="p-3 text-slate-300">
+                                        {dep.is_vulnerable ? (
+                                          <span className="text-red-400 font-mono font-semibold">{dep.cve || 'Alert'}</span>
+                                        ) : (
+                                          <span className="text-slate-500 italic">No vulnerabilities</span>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()
                   ) : (
                     <div className="flex flex-col items-center justify-center py-16 text-center">
                       <div className="w-14 h-14 bg-slate-900 rounded-full flex items-center justify-center mb-4 border border-slate-800">
