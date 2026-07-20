@@ -1,7 +1,7 @@
 import React from 'react';
 import { Copy, Check } from 'lucide-react';
 
-export default function MarkdownRenderer({ content, className = "text-slate-300", marginClass = "my-2.5" }) {
+export default function MarkdownRenderer({ content, className = "text-slate-300", marginClass = "my-2.5", badgeColor = "indigo" }) {
   if (!content) return null;
 
   let stringContent = "";
@@ -116,6 +116,26 @@ export default function MarkdownRenderer({ content, className = "text-slate-300"
       else if (trimmed === '---') {
         flushList(idx);
         elements.push(<hr key={idx} className="my-6 border-slate-800" />);
+      }
+      // Numbered lists
+      else if (/^\d+\.\s+/.test(trimmed)) {
+        flushList(idx);
+        const match = trimmed.match(/^(\d+)\.\s+(.*)$/);
+        const isRed = badgeColor === 'red';
+        elements.push(
+          <div key={idx} className="flex gap-3.5 items-start mt-3.5 first:mt-1">
+            <span className={`shrink-0 flex items-center justify-center w-5.5 h-5.5 rounded-lg font-mono font-bold text-[10px] shadow-sm select-none ${
+              isRed 
+                ? 'bg-red-500/10 border border-red-500/25 text-red-400' 
+                : 'bg-indigo-500/10 border border-indigo-500/25 text-indigo-400'
+            }`}>
+              {String(match[1]).padStart(2, '0')}
+            </span>
+            <div className={`text-xs leading-relaxed flex-1 mt-0.5 ${className}`}>
+              {parseInlineStyles(match[2])}
+            </div>
+          </div>
+        );
       }
       // Bullet lists
       else if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {

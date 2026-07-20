@@ -3,7 +3,7 @@ import axios from 'axios';
 import { 
   ShieldAlert, LogOut, Terminal, UploadCloud, Globe, RefreshCw, 
   CheckCircle2, XCircle, Info, ExternalLink, Calendar, ChevronRight, MessageSquare, GitBranch,
-  Trash2, FileText, Layers, Sun, Moon, Lock, Sparkles
+  Trash2, FileText, Layers, Sun, Moon, Lock, Sparkles, Flame
 } from 'lucide-react';
 import YAMLDiff from './YAMLDiff';
 import AIAssistantTab from './AIAssistantTab';
@@ -654,18 +654,43 @@ export default function Dashboard({ username, onLogout, theme, setTheme }) {
                       </div>
                     </div>
                   ) : activeScan.risk_assessment ? (
-                    <div className="bg-slate-900/40 border border-slate-800/80 p-6 rounded-2xl shadow-lg">
-                      <h3 className="text-sm font-semibold uppercase tracking-wider text-indigo-400 mb-4">
-                        AI Threat Scenario Analysis
-                      </h3>
-                      <MarkdownRenderer content={activeScan.risk_assessment.summary} />
+                    <div className="bg-gradient-to-br from-[#0f172a]/90 via-[#070b15]/95 to-[#0f172a]/95 border border-slate-800/80 p-6 rounded-2xl shadow-xl relative overflow-hidden">
+                      {/* Red glow highlight spot */}
+                      <div className="absolute top-0 right-0 w-36 h-36 bg-red-500/5 rounded-full blur-[80px] pointer-events-none" />
+                      
+                      <div className="flex justify-between items-center mb-5 pb-3.5 border-b border-slate-800/60">
+                        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-200 flex items-center gap-2">
+                          <Flame className="w-4 h-4 text-red-500 animate-pulse" />
+                          AI Threat Scenario Analysis
+                        </h3>
+                        <span className="px-2 py-0.5 bg-red-500/10 border border-red-500/20 text-red-400 text-[9px] font-bold rounded font-mono uppercase tracking-wider">
+                          Risk Assessment
+                        </span>
+                      </div>
+                      
+                      <div className="text-[13px] leading-relaxed text-slate-300">
+                        <MarkdownRenderer content={activeScan.risk_assessment.summary} />
+                      </div>
+                      
                       {activeScan.risk_assessment.threat_scenario && (
-                        <div className="mt-4 bg-slate-950/60 border border-slate-850 p-4 rounded-xl">
-                          <h4 className="text-xs font-bold text-red-400 mb-2 flex items-center gap-1">
-                            <Info className="w-3.5 h-3.5" />
-                            Attacker Exploitation Model
+                        <div className="mt-6 bg-slate-950/40 border border-red-500/10 hover:border-red-500/20 p-5 rounded-xl transition-all relative">
+                          <div className="absolute top-3 right-3 flex items-center gap-1.5 text-[8px] font-mono text-red-500/60 uppercase tracking-widest">
+                            <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" />
+                            Attack Vector Simulation
+                          </div>
+                          
+                          <h4 className="text-xs font-bold text-red-400 mb-3 flex items-center gap-1.5">
+                            <ShieldAlert className="w-4 h-4 text-red-500" />
+                            Attacker Exploitation Lifecycle
                           </h4>
-                          <MarkdownRenderer content={activeScan.risk_assessment.threat_scenario} className="text-slate-400" />
+                          
+                          <div className="pl-0.5 border-l border-slate-800/40 space-y-4">
+                            <MarkdownRenderer 
+                              content={activeScan.risk_assessment.threat_scenario} 
+                              className="text-slate-400" 
+                              badgeColor="red"
+                            />
+                          </div>
                         </div>
                       )}
                     </div>
