@@ -529,21 +529,6 @@ export default function Dashboard({ username, onLogout, theme, setTheme }) {
                   }}
                 />
               </div>
-              <div>
-                <label className="block text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">
-                  PR Severity Policy
-                </label>
-                <select
-                  value={prPolicy}
-                  onChange={(e) => setPrPolicy(e.target.value)}
-                  className="w-full text-xs text-slate-300 bg-slate-955 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2.5 focus:outline-none cursor-pointer"
-                >
-                  <option value="all">All Vulnerabilities</option>
-                  <option value="medium">Medium & Above</option>
-                  <option value="high">High & Critical Only</option>
-                  <option value="critical">Critical Only</option>
-                </select>
-              </div>
               {githubToken && (
                 <button
                   type="button"
@@ -814,24 +799,45 @@ export default function Dashboard({ username, onLogout, theme, setTheme }) {
 
               {activeTab === 'audit' && (
                 <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 shadow-xl">
-                  <div className="flex justify-between items-center border-b border-slate-800 pb-4 mb-4">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-800 pb-4 mb-4 gap-3">
                     <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">
                       Vulnerability Audit Details
                     </h3>
-                    <div className="flex gap-2">
-                      {['All', 'Critical', 'High', 'Medium', 'Low'].map(sev => (
-                        <button
-                          key={sev}
-                          onClick={() => setSeverityFilter(sev)}
-                          className={`px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all ${
-                            severityFilter === sev 
-                              ? 'bg-indigo-600 text-white border-indigo-500' 
-                              : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'
-                          }`}
+                    
+                    <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                      {/* PR Severity Policy Selector */}
+                      <div className="flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 rounded-xl px-2.5 py-1.5 shadow-inner">
+                        <Lock className="w-3.5 h-3.5 text-indigo-400" />
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">PR Policy:</span>
+                        <select
+                          value={prPolicy}
+                          onChange={(e) => setPrPolicy(e.target.value)}
+                          className="bg-transparent text-xs font-semibold text-slate-200 focus:outline-none cursor-pointer pr-1"
                         >
-                          {sev}
-                        </button>
-                      ))}
+                          <option value="all" className="bg-[#0f172a] text-slate-200">All Vulnerabilities</option>
+                          <option value="medium" className="bg-[#0f172a] text-slate-200">Medium & Above</option>
+                          <option value="high" className="bg-[#0f172a] text-slate-200">High & Critical Only</option>
+                          <option value="critical" className="bg-[#0f172a] text-slate-200">Critical Only</option>
+                        </select>
+                      </div>
+
+                      {/* Severity Filters */}
+                      <div className="flex gap-1">
+                        {['All', 'Critical', 'High', 'Medium', 'Low'].map(sev => (
+                          <button
+                            key={sev}
+                            type="button"
+                            onClick={() => setSeverityFilter(sev)}
+                            className={`px-2.5 py-1.5 text-[10px] font-bold rounded-xl border transition-all ${
+                              severityFilter === sev 
+                                ? 'bg-indigo-600 text-white border-indigo-500 shadow shadow-indigo-600/10' 
+                                : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200'
+                            }`}
+                          >
+                            {sev}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
