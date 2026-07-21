@@ -814,8 +814,8 @@ export default function Dashboard({ username, onLogout, theme, setTheme }) {
                           onChange={(e) => setPrPolicy(e.target.value)}
                           className="bg-transparent text-xs font-semibold text-slate-200 focus:outline-none cursor-pointer pr-1"
                         >
-                          <option value="all" className="bg-[#0f172a] text-slate-200">All Vulnerabilities</option>
-                          <option value="medium" className="bg-[#0f172a] text-slate-200">Medium & Above</option>
+                          <option value="all" className="bg-[#0f172a] text-slate-200">Manual (User Selected / All Allowed)</option>
+                          <option value="medium" className="bg-[#0f172a] text-slate-200">Medium & Above Only</option>
                           <option value="high" className="bg-[#0f172a] text-slate-200">High & Critical Only</option>
                           <option value="critical" className="bg-[#0f172a] text-slate-200">Critical Only</option>
                         </select>
