@@ -502,26 +502,6 @@ export default function Dashboard({ username, onLogout, theme, setTheme }) {
             </form>
           </div>
 
-          {/* Host CLI Scanner Widget */}
-          <div className="bg-gradient-to-b from-slate-900/60 to-[#0f172a] border border-slate-800/80 rounded-2xl p-5 shadow-xl relative overflow-hidden shadow-indigo-950/5">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-purple-500/5 rounded-full blur-lg pointer-events-none" />
-            
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300 mb-3.5 flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-purple-400" />
-              Local CLI Auditor
-            </h3>
-            
-            <p className="text-[10px] text-slate-400 mb-4 leading-relaxed">
-              Scan repositories locally in your pre-commit hooks or terminal using the SecureFlow CLI runner.
-            </p>
-            
-            <div className="bg-slate-950/60 border border-slate-850 rounded-xl p-3.5 font-mono text-[10px] relative group select-all">
-              <code className="text-purple-300 block break-all leading-normal">
-                npx secureflow-cli scan --repo {activeScan?.repo_url ? activeScan.repo_url.replace(/\/$/, "") : "github-url"}
-              </code>
-            </div>
-          </div>
-
           {/* GitHub Auto-Fix Integration Widget */}
           <div className="bg-gradient-to-b from-slate-900/60 to-[#0f172a] border border-slate-800/80 rounded-2xl p-5 shadow-xl relative overflow-hidden shadow-indigo-950/5">
             <div className="absolute top-0 right-0 w-16 h-16 bg-indigo-500/5 rounded-full blur-lg pointer-events-none" />
