@@ -545,7 +545,7 @@ npm run dev
 ---
 ## Author
 
-**K L Aadithya**
+**K. L. Aadithya**
 B.Tech Computing and DataScience, Sai University, Chennai
 
 [![GitHub](https://img.shields.io/badge/GitHub-Aadithya--kl-181717?style=flat-square&logo=github)](https://github.com/Aadithya-kl)
